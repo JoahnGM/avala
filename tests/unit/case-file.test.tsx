@@ -7,7 +7,8 @@ describe("CaseFile", () => {
   it("renders the three simulated steps with the APROBADO stamp by default", () => {
     render(<CaseFile />);
 
-    expect(screen.getByText(/01 — documento subido/i)).toBeInTheDocument();
+    expect(screen.getByText(/01 — documento enviado/i)).toBeInTheDocument();
+    expect(screen.queryByText(/documento subido/i)).not.toBeInTheDocument();
     expect(screen.getByText(/02 — el agente revisa/i)).toBeInTheDocument();
     expect(screen.getByText(/03 — resultado/i)).toBeInTheDocument();
     expect(screen.getByText("APROBADO")).toBeInTheDocument();
