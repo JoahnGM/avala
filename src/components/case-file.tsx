@@ -3,17 +3,13 @@
 import { useState } from "react";
 
 import { SectionLabel } from "@/components/ui/section-label";
+import { StatusStamp } from "@/components/ui/status-stamp";
 
 // Static mock of the live validation demo — no real validation logic yet.
 // The temporary trigger button exists only so the stamp animation can be
 // reviewed on the Vercel preview; it will be removed when the real flow lands.
 
 type StampState = "aprobado" | "revisar";
-
-const STAMP_LABEL: Record<StampState, string> = {
-  aprobado: "APROBADO",
-  revisar: "REVISAR",
-};
 
 const AGENT_CHECKS: Record<StampState, { prefix: "OK" | "FALTA"; text: string }[]> = {
   aprobado: [
@@ -37,8 +33,6 @@ export function CaseFile() {
     setStampState((prev) => (prev === "aprobado" ? "revisar" : "aprobado"));
     setStampKey((key) => key + 1);
   }
-
-  const approved = stampState === "aprobado";
 
   return (
     <div>
@@ -83,22 +77,7 @@ export function CaseFile() {
           <SectionLabel>03 — Resultado</SectionLabel>
           <div className="relative mt-4 flex min-h-32 items-center justify-center border border-hairline p-4">
             <div aria-live="polite">
-              {/* Rotation lives on the wrapper so the landing animation's
-                  transform doesn't overwrite the off-axis stamp angle. */}
-              <span
-                className={`inline-block ${approved ? "-rotate-2" : "rotate-2"}`}
-              >
-                <span
-                  key={stampKey}
-                  className={`block border-2 px-5 py-1 font-stamp text-display-sm uppercase tracking-widest motion-safe:animate-stamp-land ${
-                    approved
-                      ? "border-approved text-approved"
-                      : "border-stamp text-stamp"
-                  }`}
-                >
-                  {STAMP_LABEL[stampState]}
-                </span>
-              </span>
+              <StatusStamp key={stampKey} state={stampState} />
             </div>
           </div>
         </li>
