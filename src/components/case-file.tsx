@@ -52,7 +52,7 @@ export function CaseFile() {
       <ol className="mt-6 grid gap-px border border-hairline bg-hairline md:grid-cols-3">
         <li className="bg-paper p-6">
           <p className="font-mono text-caption uppercase tracking-widest text-graphite">
-            01 — Documento subido
+            01 — Documento enviado
           </p>
           <div className="mt-4 border border-hairline p-4 font-mono text-data">
             <p className="font-medium">pila_junio_2026.pdf</p>
