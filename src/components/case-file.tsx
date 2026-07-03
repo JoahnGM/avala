@@ -43,9 +43,9 @@ export function CaseFile() {
   return (
     <div>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="font-mono text-data font-medium uppercase tracking-widest">
+        <SectionLabel as="h2" variant="title">
           Caso #0001
-        </h2>
+        </SectionLabel>
         <SectionLabel>Simulación con datos de ejemplo</SectionLabel>
       </div>
 

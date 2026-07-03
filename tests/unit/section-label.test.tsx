@@ -18,6 +18,18 @@ describe("SectionLabel", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders the title variant with the larger data size", () => {
+    render(
+      <SectionLabel as="h2" variant="title">
+        Caso #0001
+      </SectionLabel>,
+    );
+
+    const title = screen.getByRole("heading", { level: 2, name: "Caso #0001" });
+    expect(title).toHaveClass("text-data");
+    expect(title).not.toHaveClass("text-caption");
+  });
+
   it("renders the optional secondary line", () => {
     render(
       <SectionLabel secondary="Conversación simulada">Caso #0044</SectionLabel>,
