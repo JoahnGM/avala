@@ -1,4 +1,5 @@
 import { CaseFile } from "@/components/case-file";
+import { SectionLabel } from "@/components/ui/section-label";
 
 // Copy note: hero headline and value proposition are still under active
 // validation (see CLAUDE.md) — flag any change here explicitly in the PR.
@@ -6,10 +7,9 @@ export function Hero() {
   return (
     <section className="mx-auto max-w-5xl px-6 py-16 md:py-24">
       <div className="grid gap-10 md:grid-cols-[10rem_1fr] md:gap-16">
-        <p className="font-mono text-caption uppercase tracking-widest text-graphite">
+        <SectionLabel secondary="Validación de cuentas de cobro">
           Avala
-          <span className="mt-1 block">Validación de cuentas de cobro</span>
-        </p>
+        </SectionLabel>
 
         <div>
           <h1 className="font-display text-display-md uppercase md:text-display-lg">

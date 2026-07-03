@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { SectionLabel } from "@/components/ui/section-label";
+
 // Static mock of the live validation demo — no real validation logic yet.
 // The temporary trigger button exists only so the stamp animation can be
 // reviewed on the Vercel preview; it will be removed when the real flow lands.
@@ -44,16 +46,12 @@ export function CaseFile() {
         <h2 className="font-mono text-data font-medium uppercase tracking-widest">
           Caso #0001
         </h2>
-        <p className="font-mono text-caption uppercase tracking-widest text-graphite">
-          Simulación con datos de ejemplo
-        </p>
+        <SectionLabel>Simulación con datos de ejemplo</SectionLabel>
       </div>
 
       <ol className="mt-6 grid gap-px border border-hairline bg-hairline md:grid-cols-3">
         <li className="bg-paper p-6">
-          <p className="font-mono text-caption uppercase tracking-widest text-graphite">
-            01 — Documento enviado
-          </p>
+          <SectionLabel>01 — Documento enviado</SectionLabel>
           <div className="mt-4 border border-hairline p-4 font-mono text-data">
             <p className="font-medium">pila_junio_2026.pdf</p>
             <p className="mt-2 text-graphite">NIT 900.428.317-1</p>
@@ -62,9 +60,7 @@ export function CaseFile() {
         </li>
 
         <li className="bg-paper p-6">
-          <p className="font-mono text-caption uppercase tracking-widest text-graphite">
-            02 — El agente revisa
-          </p>
+          <SectionLabel>02 — El agente revisa</SectionLabel>
           <ul className="mt-4 space-y-2 font-mono text-data">
             {AGENT_CHECKS[stampState].map((check) => (
               <li key={check.text} className="flex gap-3">
@@ -84,9 +80,7 @@ export function CaseFile() {
         </li>
 
         <li className="bg-paper p-6">
-          <p className="font-mono text-caption uppercase tracking-widest text-graphite">
-            03 — Resultado
-          </p>
+          <SectionLabel>03 — Resultado</SectionLabel>
           <div className="relative mt-4 flex min-h-32 items-center justify-center border border-hairline p-4">
             <div aria-live="polite">
               {/* Rotation lives on the wrapper so the landing animation's
