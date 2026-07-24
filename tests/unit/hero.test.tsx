@@ -35,12 +35,4 @@ describe("Hero", () => {
     expect(screen.getByText("$0")).toBeInTheDocument();
     expect(screen.getByText(/cifras ilustrativas/i)).toBeInTheDocument();
   });
-
-  it("renders the CASO #0001 case file block", () => {
-    render(<Hero />);
-
-    expect(
-      screen.getByRole("heading", { name: /caso #0001/i }),
-    ).toBeInTheDocument();
-  });
 });

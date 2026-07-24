@@ -1,4 +1,3 @@
-import { CaseFile } from "@/components/case-file";
 import { SectionLabel } from "@/components/ui/section-label";
 
 // §01 hero. Positioning updated 2026-07-23 with Joahn's explicit approval:
@@ -65,10 +64,6 @@ export function Hero() {
         <p className="mt-6 font-mono text-caption uppercase tracking-widest text-graphite">
           Cifras ilustrativas
         </p>
-
-        <div className="mt-20">
-          <CaseFile />
-        </div>
       </div>
     </section>
   );
