@@ -42,6 +42,7 @@ const PRINCIPLES = [
   { id: 'P3', name: 'Elegance (density vs clutter)' },
   { id: 'P4', name: 'AVALA / Dataico Design Principles' },
   { id: 'P5', name: 'Logic Specification (state machine)' },
+  { id: 'P6', name: 'Storytelling / Concreteness' },
 ];
 
 // ---- Contract: control plane <-> reasoning plane -----------------------------
@@ -53,14 +54,14 @@ const SCORE_SCHEMA = {
   properties: {
     principles: {
       type: 'array',
-      minItems: 5,
-      maxItems: 5,
+      minItems: 6,
+      maxItems: 6,
       items: {
         type: 'object',
         additionalProperties: false,
         required: ['id', 'name', 'score', 'evidence', 'fixes'],
         properties: {
-          id: { type: 'string', enum: ['P1', 'P2', 'P3', 'P4', 'P5'] },
+          id: { type: 'string', enum: ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'] },
           name: { type: 'string' },
           score: { type: 'integer', minimum: 1, maximum: 5 },
           evidence: {
@@ -163,7 +164,7 @@ function reviewerPrompt(prev) {
     'Rules: cite specific evidence for every score (no vibes); never inflate a score; for the Simplicity principle actually run the squint test and report the single element that survives.',
     'For any fix that would require changing hero/value-proposition copy, the palette/typography/base tokens, product scope, or adding a dependency: DO NOT list it as a normal fix — put it under escalations (it needs human sign-off per CLAUDE.md).',
     focus,
-    'Return the structured report (all five principles with score, evidence, ordered fixes, plus escalations).',
+    'Return the structured report (all six principles P1-P6 with score, evidence, ordered fixes, plus escalations).',
   ].join('\n');
 }
 

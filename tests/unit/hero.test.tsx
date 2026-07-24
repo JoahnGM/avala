@@ -36,11 +36,13 @@ describe("Hero", () => {
     expect(screen.getByText(/cifras ilustrativas/i)).toBeInTheDocument();
   });
 
-  it("renders the expediente preview alongside the copy", () => {
+  it("renders a named supplier story in the preview", () => {
     render(<Hero />);
 
-    expect(screen.getByText(/caso #0001/i)).toBeInTheDocument();
-    expect(screen.getByText("pila_febrero_2026.pdf")).toBeInTheDocument();
+    expect(screen.getByText("Talleres Bacatá S.A.S.")).toBeInTheDocument();
+    expect(
+      screen.getByText(/avala revisó sus documentos.*lista para pagar/i),
+    ).toBeInTheDocument();
     expect(screen.getByText("APROBADO")).toBeInTheDocument();
   });
 });

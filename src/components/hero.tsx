@@ -27,19 +27,32 @@ const CHECKS = [
 function ExpedientePreview() {
   return (
     <div className="border border-hairline bg-paper p-6">
-      <div className="flex items-center justify-between gap-4">
-        <p className="font-mono text-caption uppercase tracking-widest text-graphite">
-          Caso #0001
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="font-mono text-caption uppercase tracking-widest text-graphite">
+            Proveedor
+          </p>
+          <p className="mt-1 font-display text-display-sm uppercase">
+            Talleres Bacatá S.A.S.
+          </p>
+          <p className="mt-1 font-mono text-data text-graphite">
+            NIT 901.334.208-1
+          </p>
+        </div>
         <Stamp variant="approved" size="sm" />
       </div>
 
-      <div className="mt-5 font-mono text-data">
-        <p className="text-ink">pila_febrero_2026.pdf</p>
-        <p className="mt-1 text-graphite">NIT 901.334.208-1 · $4.850.000</p>
-      </div>
+      <p className="mt-5 text-body text-graphite">
+        Envió su cuenta de cobro{" "}
+        <span className="font-mono text-ink">#0043</span> por{" "}
+        <span className="font-mono text-ink">$4.850.000</span>. AVALA revisó sus
+        documentos contra la fuente oficial y la dejó lista para pagar.
+      </p>
 
-      <ul className="mt-5 space-y-2 font-mono text-data text-graphite">
+      <p className="mt-6 font-mono text-caption uppercase tracking-widest text-graphite">
+        Lo que AVALA revisó
+      </p>
+      <ul className="mt-3 space-y-2 font-mono text-data text-graphite">
         {CHECKS.map((check) => (
           <li key={check} className="flex gap-2">
             <span className="text-ink" aria-hidden="true">

@@ -1,7 +1,7 @@
 # design/ux-review.md — AVALA UX review
 
 A repeatable, self-iterating UX review for any AVALA flow. It scores a flow
-**1–5** against five principles, gives evidence-based feedback, and then
+**1–5** against six principles, gives evidence-based feedback, and then
 **iterates until every principle is ≥ 4** (the quality gate) or escalates a
 decision it can't make alone.
 
@@ -122,6 +122,23 @@ user decision fork. For AVALA, walk the real branches: document valid →
 APROBADO; document invalid → REVISAR → WhatsApp correction → resubmit; supplier
 never responds; wrong document type; expired RUT; PILA period mismatch.
 
+### 6 — Storytelling / Concreteness
+**Job:** Does the page make its mechanism tangible through a concrete, *named*
+example — a supplier with a story — instead of abstract placeholders?
+**Inspect:** hero/demo examples, case cards, any "sample" content.
+**Origin:** added 2026-07-23 — the hero expediente preview listed "Caso #0001"
++ a filename + a checklist. It read like a form, not like *a supplier whose
+invoice got cleared*. Concreteness is what makes the mechanism believable.
+- **1** — Purely abstract: "Caso #0001", "documento", generic labels; no named
+  actor, no narrative. Reads like a form or a spec.
+- **3** — A concrete example exists but is thin: a filename / case number without
+  a human subject or a before→after arc.
+- **5** — A named, believable subject carries a mini-story — *who* it is, *what*
+  AVALA reviewed, and the *outcome* — so the reader watches the mechanism happen
+  to someone real (e.g. "Talleres Bacatá S.A.S. envió su cuenta #0043; AVALA
+  revisó PILA/RUT/DIAN y la dejó lista para pagar"). Bonus: one coherent case
+  threads across sections.
+
 ---
 
 ## Output format (exactly this shape)
@@ -138,6 +155,7 @@ Start with the summary table, then one section per principle, then the verdict.
 | 3 | Elegance               |  x/5  |  ✅/❌   |
 | 4 | AVALA Principles       |  x/5  |  ✅/❌   |
 | 5 | Logic Specification    |  x/5  |  ✅/❌   |
+| 6 | Storytelling           |  x/5  |  ✅/❌   |
 
 Overall: PASS (all ≥4) | FAIL (n principles below gate)
 ```
@@ -180,7 +198,7 @@ needed.*
 
 ```
 ### <date> — <flow> — <commit/PR>
-Round 1:  P1 _ · P2 _ · P3 _ · P4 _ · P5 _
-Round 2:  P1 _ · P2 _ · P3 _ · P4 _ · P5 _   (fixes: …)
+Round 1:  P1 _ · P2 _ · P3 _ · P4 _ · P5 _ · P6 _
+Round 2:  P1 _ · P2 _ · P3 _ · P4 _ · P5 _ · P6 _   (fixes: …)
 Result:   PASS | escalated (<reason>)
 ```
