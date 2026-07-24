@@ -27,6 +27,20 @@ const config: Config = {
         body: ["16px", { lineHeight: "1.7" }],
         data: ["14px", { lineHeight: "1.5" }],
         caption: ["12px", { lineHeight: "1.5" }],
+        // iOS status-bar / timestamp scale — smaller than caption on purpose,
+        // used only inside the phone mockup chrome, never for reading copy.
+        micro: ["11px", { lineHeight: "1.4" }],
+      },
+      // Device-frame geometry for the iOS phone mockup (PhoneFrame). These are
+      // hardware radii/sizes, not general UI tokens — hence the explicit names.
+      borderRadius: {
+        phone: "2.75rem",
+        "phone-screen": "2.25rem",
+        bubble: "1.25rem",
+      },
+      maxWidth: {
+        phone: "20rem",
+        bubble: "15rem",
       },
       keyframes: {
         // Signature element (design/tokens.md): the stamp lands on the
