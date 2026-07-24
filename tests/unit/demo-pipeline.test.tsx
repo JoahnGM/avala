@@ -1,59 +1,54 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DemoPipeline } from "@/components/demo-pipeline";
 
-describe("DemoPipeline", () => {
-  it("renders the teaching heading", () => {
+describe("DemoPipeline (interactive validation)", () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  it("renders the teaching heading and starts idle with a validate action", () => {
     render(<DemoPipeline />);
 
     expect(
-      screen.getByRole("heading", {
-        name: /esto es lo que avala hace por cada proveedor/i,
-      }),
+      screen.getByRole("heading", { name: /míralo validar una cuenta de cobro/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /validar documentos/i }),
     ).toBeInTheDocument();
   });
 
-  it("narrates the four steps in order", () => {
+  it("goes idle → validating → APROBADO for the clean case", () => {
     render(<DemoPipeline />);
 
-    expect(screen.getByText(/01 · RECIBE/i)).toBeInTheDocument();
-    expect(screen.getByText(/02 · REVISA/i)).toBeInTheDocument();
-    expect(screen.getByText(/03 · CORRIGE/i)).toBeInTheDocument();
-    expect(screen.getByText(/04 · ENTREGA/i)).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: /validar documentos/i }),
+    );
+    expect(screen.getByText(/validando contra dian/i)).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(1400);
+    });
+
+    expect(screen.getByText("APROBADO")).toBeInTheDocument();
   });
 
-  it("shows the APPROVED stamp as the animated climax", () => {
+  it("shows REVISAR and links to the correction for the RUT-vencido case", () => {
     render(<DemoPipeline />);
 
-    const stamps = screen.getAllByText("APROBADO");
-    expect(
-      stamps.some((el) => el.className.includes("animate-stamp-land")),
-    ).toBe(true);
-  });
-
-  it("shows both validation outcomes (APROBADO and REVISAR)", () => {
-    render(<DemoPipeline />);
+    fireEvent.click(screen.getByRole("button", { name: /rut vencido/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /validar documentos/i }),
+    );
+    act(() => {
+      vi.advanceTimersByTime(1400);
+    });
 
     expect(screen.getByText("REVISAR")).toBeInTheDocument();
-    expect(screen.getByText(/dos resultados posibles/i)).toBeInTheDocument();
-  });
-
-  it("closes with the no-work-for-your-team line", () => {
-    render(<DemoPipeline />);
-
     expect(
-      screen.getByText("Tu equipo no escribe un solo mensaje."),
+      screen.getByText(/rut desactualizado/i),
     ).toBeInTheDocument();
-  });
-
-  it("renders the CORRIGE bubble through the shared ChatBubble", () => {
-    render(<DemoPipeline />);
-
-    // ChatBubble emits an sr-only "<label>:" node — evidence the shared
-    // component is used instead of an inline bubble (heuristics.md #1).
-    expect(screen.getByText("Avala:")).toBeInTheDocument();
     expect(
-      screen.getByText(/tu rut venció el 15 de mayo/i),
-    ).toBeInTheDocument();
+      screen.getByRole("link", { name: /le escribió al proveedor/i }),
+    ).toHaveAttribute("href", "#correccion");
   });
 });

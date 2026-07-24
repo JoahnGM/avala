@@ -1,174 +1,213 @@
 "use client";
 
 import { useState } from "react";
-import { ChatBubble } from "@/components/ui/chat-bubble";
-import { SectionLabel } from "@/components/ui/section-label";
 import { Stamp } from "@/components/ui/stamp";
 
-// §02 "La demo viva" — narrated pipeline. Rationale (client feedback,
-// 2026-07-23): the earlier demo led with the APPROVED stamp, so people saw
-// the result without understanding the WORK behind it. This section narrates
-// the work in 4 steps and lets the stamp be the climax of the last step.
+// §02 "La demo viva" — interactive, simulated validation (no backend). The
+// visitor picks a case and watches AVALA validate it against the official
+// sources: idle → validating → APROBADO or REVISAR. The REVISAR branch points
+// to §04 (the WhatsApp correction). This is the live demonstration CLAUDE.md
+// asks for; validation is simulated, not a real compliance engine.
 
-type Step = {
-  /** Mono label, e.g. "01 · RECIBE". */
+type CaseId = "aprobado" | "revisar";
+type Phase = "idle" | "validating" | "done";
+type Check = { ok: boolean; text: string };
+
+type Case = {
   label: string;
-  /** Short display title (uppercase). */
-  title: string;
-  /** One-line body copy. */
-  body: string;
+  supplier: string;
+  file: string;
+  nit: string;
+  amount: string;
+  stamp: "approved" | "revisar";
+  checks: Check[];
 };
 
-const STEPS: Step[] = [
-  {
-    label: "01 · RECIBE",
-    title: "La cuenta",
-    body: "La cuenta y sus documentos.",
+const CASES: Record<CaseId, Case> = {
+  aprobado: {
+    label: "Cuenta al día",
+    supplier: "Talleres Bacatá S.A.S.",
+    file: "cuenta_0043_bacata.pdf",
+    nit: "NIT 901.334.208-1",
+    amount: "$4.850.000",
+    stamp: "approved",
+    checks: [
+      { ok: true, text: "PILA feb-2026 · al día" },
+      { ok: true, text: "RUT vigente" },
+      { ok: true, text: "DIAN sin obligaciones" },
+      { ok: true, text: "Sin indicios de nómina" },
+    ],
   },
-  {
-    label: "02 · REVISA",
-    title: "Contra la fuente",
-    body: "PILA, RUT y DIAN contra la fuente oficial.",
+  revisar: {
+    label: "RUT vencido",
+    supplier: "Distribuidora Andes S.A.S.",
+    file: "cuenta_0002_andes.pdf",
+    nit: "NIT 900.512.774-3",
+    amount: "$2.100.000",
+    stamp: "revisar",
+    checks: [
+      { ok: true, text: "PILA feb-2026 · al día" },
+      { ok: false, text: "RUT desactualizado (última: 2023)" },
+      { ok: true, text: "DIAN sin obligaciones" },
+      { ok: true, text: "Sin indicios de nómina" },
+    ],
   },
-  {
-    label: "03 · CORRIGE",
-    title: "Por chat",
-    body: "Si algo falta, le escribe al proveedor y lo resuelve.",
-  },
-  {
-    label: "04 · ENTREGA",
-    title: "Lista para pagar",
-    body: "Cuenta lista para pagar.",
-  },
-];
+};
 
-// Checklist rows for step 02. The check mark stays in ink (NOT approved green):
-// green is reserved for the final validated state (the stamp).
-const CHECKS = [
-  "PILA feb-2026",
-  "RUT vigente",
-  "DIAN sin obligaciones",
-  "Sin indicios de nómina",
-];
+const VALIDATION_MS = 1400;
 
 export function DemoPipeline() {
-  // Bumping this key remounts the stamp <span>, replaying the CSS entrance
-  // animation (motion-safe:animate-stamp-land) on demand.
-  const [replayKey, setReplayKey] = useState(0);
+  const [caseId, setCaseId] = useState<CaseId>("aprobado");
+  const [phase, setPhase] = useState<Phase>("idle");
+  const active = CASES[caseId];
+
+  function selectCase(id: CaseId) {
+    setCaseId(id);
+    setPhase("idle");
+  }
+
+  function validate() {
+    setPhase("validating");
+    setTimeout(() => setPhase("done"), VALIDATION_MS);
+  }
 
   return (
     <section className="border-t border-hairline">
       <div className="mx-auto max-w-5xl px-6 py-16 md:py-20">
         <div className="flex items-center gap-4">
-          <SectionLabel as="p">§ 02 · La demo viva</SectionLabel>
+          <p className="font-mono text-caption uppercase tracking-widest text-graphite">
+            § 02 · La demo viva
+          </p>
           <span className="h-px flex-1 bg-hairline" aria-hidden="true" />
         </div>
 
         <h2 className="mt-8 max-w-3xl font-display text-display-md uppercase md:text-display-lg">
-          Esto es lo que AVALA hace por cada proveedor.
+          Míralo validar una cuenta de cobro.
         </h2>
 
         <p className="mt-8 max-w-2xl text-body-lg text-graphite">
-          El proveedor manda su cuenta de cobro. AVALA hace el resto.
+          Elige un caso y observa cómo AVALA revisa los documentos contra la
+          DIAN, la UGPP y PILA — en segundos.
         </p>
 
-        <ol className="mt-16 grid gap-x-6 gap-y-12 lg:grid-cols-4">
-          {STEPS.map((step, i) => (
-            <li key={step.label} className="relative border-t border-hairline pt-6">
-              {/* Connector arrow between steps (desktop only). */}
-              {i > 0 ? (
-                <span
-                  aria-hidden="true"
-                  className="absolute -left-4 top-8 hidden font-mono text-body-lg text-graphite lg:block"
+        <div className="mt-10 border border-hairline">
+          {/* Case picker */}
+          <div className="flex flex-wrap gap-2 border-b border-hairline p-3">
+            {(Object.keys(CASES) as CaseId[]).map((id) => {
+              const selected = id === caseId;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => selectCase(id)}
+                  className={`px-3 py-1.5 font-mono text-caption uppercase tracking-widest focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${
+                    selected
+                      ? "bg-ink text-paper"
+                      : "border border-hairline text-graphite hover:text-ink"
+                  }`}
                 >
-                  &rarr;
-                </span>
-              ) : null}
+                  {CASES[id].label}
+                </button>
+              );
+            })}
+          </div>
 
+          <div className="grid md:grid-cols-2">
+            {/* Document */}
+            <div className="border-b border-hairline p-6 md:border-b-0 md:border-r">
               <p className="font-mono text-caption uppercase tracking-widest text-graphite">
-                {step.label}
+                Documento
               </p>
-              <h3 className="mt-4 font-display text-display-sm uppercase">
-                {step.title}
-              </h3>
-              <p className="mt-3 text-body text-graphite">{step.body}</p>
+              <div className="mt-3 font-mono text-data">
+                <p className="text-ink">{active.file}</p>
+                <p className="mt-1 text-graphite">{active.supplier}</p>
+                <p className="mt-1 text-graphite">
+                  {active.nit} · {active.amount}
+                </p>
+              </div>
 
               <div className="mt-6">
-                {/* 01 · RECIBE — mini document card. */}
-                {i === 0 ? (
-                  <div className="border-t border-hairline pt-4 font-mono text-data">
-                    <p>pila_febrero_2026.pdf</p>
-                    <p className="mt-2 text-graphite">NIT 901.334.208-1</p>
-                    <p className="mt-2 text-graphite">
-                      Cuenta #0002 · $4.850.000
-                    </p>
-                  </div>
-                ) : null}
+                {phase === "done" ? (
+                  <button
+                    type="button"
+                    onClick={() => setPhase("idle")}
+                    className="border border-hairline px-4 py-2 font-mono text-caption uppercase tracking-widest text-graphite hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+                  >
+                    Probar de nuevo
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={validate}
+                    disabled={phase === "validating"}
+                    className="bg-stamp px-5 py-2.5 font-mono text-data uppercase tracking-widest text-paper disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+                  >
+                    {phase === "validating"
+                      ? "Validando…"
+                      : "Validar documentos →"}
+                  </button>
+                )}
+              </div>
+            </div>
 
-                {/* 02 · REVISA — checklist (checks in ink, not green). */}
-                {i === 1 ? (
+            {/* Result */}
+            <div className="min-h-52 p-6" aria-live="polite">
+              {phase === "idle" ? (
+                <p className="text-body text-graphite">
+                  Pulsa <span className="text-ink">Validar</span> y AVALA revisa
+                  el documento contra la fuente oficial.
+                </p>
+              ) : null}
+
+              {phase === "validating" ? (
+                <p className="font-mono text-data text-graphite">
+                  Validando contra DIAN, UGPP y PILA…
+                </p>
+              ) : null}
+
+              {phase === "done" ? (
+                <div>
                   <ul className="space-y-2 font-mono text-data">
-                    {CHECKS.map((check) => (
-                      <li key={check} className="flex items-start gap-2">
-                        <span aria-hidden="true" className="text-ink">
-                          &#10003;
+                    {active.checks.map((check) => (
+                      <li key={check.text} className="flex items-start gap-2">
+                        <span
+                          aria-hidden="true"
+                          className={check.ok ? "text-ink" : "text-stamp"}
+                        >
+                          {check.ok ? "✓" : "✗"}
                         </span>
-                        <span className="text-graphite">{check}</span>
+                        <span className="text-graphite">{check.text}</span>
                       </li>
                     ))}
                   </ul>
-                ) : null}
 
-                {/* 03 · CORRIGE — chat bubble. */}
-                {i === 2 ? (
-                  <ul>
-                    <ChatBubble sender="avala" label="Avala">
-                      Tu RUT venció el 15 de mayo. Envíame el actualizado{" "}
-                      <span className="inline-block grayscale">🙂</span>
-                    </ChatBubble>
-                  </ul>
-                ) : null}
-
-                {/* 04 · ENTREGA — the stamp: the climax. Green is allowed here
-                    because it is the validated state. */}
-                {i === 3 ? (
-                  <div className="flex flex-col items-start gap-3">
-                    <Stamp key={replayKey} variant="approved" size="lg" animate />
-                    <button
-                      type="button"
-                      onClick={() => setReplayKey((k) => k + 1)}
-                      className="border border-hairline px-3 py-1 font-mono text-caption uppercase tracking-widest text-graphite focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-                    >
-                      Reproducir
-                    </button>
+                  <div className="mt-5">
+                    <Stamp variant={active.stamp} size="lg" animate />
                   </div>
-                ) : null}
-              </div>
-            </li>
-          ))}
-        </ol>
 
-        <div className="mt-16 border-t border-hairline pt-8">
-          <p className="font-mono text-caption uppercase tracking-widest text-graphite">
-            Dos resultados posibles
-          </p>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2">
-            <div className="flex items-center gap-4">
-              <Stamp variant="approved" size="sm" />
-              <p className="text-body text-graphite">
-                Todo en orden. La cuenta entra a pago.
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <Stamp variant="revisar" size="sm" />
-              <p className="text-body text-graphite">
-                Falta algo. AVALA lo resuelve por chat con el proveedor.
-              </p>
+                  <p className="mt-4 text-body text-graphite">
+                    {active.stamp === "approved" ? (
+                      "Todo al día. La cuenta entra a pago."
+                    ) : (
+                      <>
+                        Falta un documento.{" "}
+                        <a
+                          href="#correccion"
+                          className="text-ink underline underline-offset-4 hover:text-stamp focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+                        >
+                          AVALA ya le escribió al proveedor ↓
+                        </a>
+                      </>
+                    )}
+                  </p>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
 
-        <p className="mt-12 text-body-lg font-medium">
+        <p className="mt-10 text-body-lg font-medium">
           Tu equipo no escribe un solo mensaje.
         </p>
       </div>
