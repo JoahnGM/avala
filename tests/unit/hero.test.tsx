@@ -35,4 +35,12 @@ describe("Hero", () => {
     expect(screen.getByText("$0")).toBeInTheDocument();
     expect(screen.getByText(/cifras ilustrativas/i)).toBeInTheDocument();
   });
+
+  it("renders the expediente preview alongside the copy", () => {
+    render(<Hero />);
+
+    expect(screen.getByText(/caso #0001/i)).toBeInTheDocument();
+    expect(screen.getByText("pila_febrero_2026.pdf")).toBeInTheDocument();
+    expect(screen.getByText("APROBADO")).toBeInTheDocument();
+  });
 });

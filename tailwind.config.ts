@@ -28,6 +28,9 @@ const config: Config = {
         // Enlarged reading size for lead paragraphs — the landing leans on this
         // over 16px to keep body text generous (fewer, bigger words on screen).
         "body-lg": ["18px", { lineHeight: "1.6" }],
+        // Hero lead paragraph — one step above body-lg so the subhead holds its
+        // own next to the display headline.
+        "body-xl": ["20px", { lineHeight: "1.55" }],
         data: ["14px", { lineHeight: "1.5" }],
         caption: ["12px", { lineHeight: "1.5" }],
         // iOS status-bar / timestamp scale — smaller than caption on purpose,

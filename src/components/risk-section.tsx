@@ -38,7 +38,7 @@ const FRENTES: Frente[] = [
 export function RiskSection() {
   return (
     <section className="border-t border-hairline">
-      <div className="mx-auto max-w-5xl px-6 py-24 md:py-32">
+      <div className="mx-auto max-w-5xl px-6 py-16 md:py-20">
         <div className="flex items-center gap-4">
           <SectionLabel as="p">§ 03 · Lo que está en juego</SectionLabel>
           <span className="h-px flex-1 bg-hairline" aria-hidden="true" />
