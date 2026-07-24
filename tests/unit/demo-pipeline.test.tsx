@@ -35,4 +35,15 @@ describe("DemoPipeline", () => {
       screen.getByText("Tu equipo no escribe un solo mensaje."),
     ).toBeInTheDocument();
   });
+
+  it("renders the CORRIGE bubble through the shared ChatBubble", () => {
+    render(<DemoPipeline />);
+
+    // ChatBubble emits an sr-only "<label>:" node — evidence the shared
+    // component is used instead of an inline bubble (heuristics.md #1).
+    expect(screen.getByText("Avala:")).toBeInTheDocument();
+    expect(
+      screen.getByText(/tu rut venció el 15 de mayo/i),
+    ).toBeInTheDocument();
+  });
 });

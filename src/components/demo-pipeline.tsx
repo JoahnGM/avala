@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ChatBubble } from "@/components/ui/chat-bubble";
 import { SectionLabel } from "@/components/ui/section-label";
 
 // §02 "La demo viva" — narrated pipeline. Rationale (client feedback,
@@ -119,15 +120,17 @@ export function DemoPipeline() {
 
                 {/* 03 · CORRIGE — chat bubble. */}
                 {i === 2 ? (
-                  <div className="max-w-bubble rounded-bubble bg-ink px-3 py-2 text-data text-paper">
-                    Tu RUT venció el 15 de mayo. Envíame el actualizado 🙂
-                  </div>
+                  <ul>
+                    <ChatBubble sender="avala" label="Avala">
+                      Tu RUT venció el 15 de mayo. Envíame el actualizado 🙂
+                    </ChatBubble>
+                  </ul>
                 ) : null}
 
                 {/* 04 · ENTREGA — the stamp: the climax. Green is allowed here
                     because it is the validated state. */}
                 {i === 3 ? (
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-col items-start gap-3">
                     <span
                       key={replayKey}
                       className="inline-block -rotate-2 border-2 border-approved px-5 py-1 font-stamp text-display-sm uppercase tracking-widest text-approved motion-safe:animate-stamp-land"
