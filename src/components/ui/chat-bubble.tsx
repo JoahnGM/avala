@@ -31,7 +31,10 @@ function AttachmentIcon() {
 }
 
 type ChatBubbleProps = {
-  sender: "avala" | "proveedor";
+  /** "avala" is the filled bubble on the left; anything else ("proveedor" in
+   * the simulated chat, "visitante" in the contact intake) is the outlined
+   * bubble on the right. */
+  sender: "avala" | "proveedor" | "visitante";
   /** Accessible sender name (user-facing, Spanish). Announced to screen
    * readers; the chat header already names the contact visually. */
   label: string;
