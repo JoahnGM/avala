@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SectionLabel } from "@/components/ui/section-label";
 import { Stamp } from "@/components/ui/stamp";
 
 // §02 "La demo viva" — interactive, simulated validation (no backend). The
@@ -75,9 +76,7 @@ export function DemoPipeline() {
     <section className="border-t border-hairline">
       <div className="mx-auto max-w-5xl px-6 py-16 md:py-20">
         <div className="flex items-center gap-4">
-          <p className="font-mono text-caption uppercase tracking-widest text-graphite">
-            § 02 · La demo viva
-          </p>
+          <SectionLabel as="p">02 · Cómo funciona</SectionLabel>
           <span className="h-px flex-1 bg-hairline" aria-hidden="true" />
         </div>
 

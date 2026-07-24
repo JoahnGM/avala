@@ -71,7 +71,7 @@ export function Hero() {
     <section>
       <div className="mx-auto max-w-5xl px-6 pt-8 pb-16 md:pt-10 md:pb-20">
         <div className="flex items-center gap-4">
-          <SectionLabel as="p">§ 01 · Expediente</SectionLabel>
+          <SectionLabel as="p">01 · El problema</SectionLabel>
           <span className="h-px flex-1 bg-hairline" aria-hidden="true" />
         </div>
 

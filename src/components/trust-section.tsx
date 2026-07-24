@@ -24,7 +24,7 @@ export function TrustSection() {
     <section className="border-t border-hairline">
       <div className="mx-auto max-w-5xl px-6 py-16 md:py-20">
         <div className="flex items-center gap-4">
-          <SectionLabel as="p">§ 05 · Por qué puedes confiar</SectionLabel>
+          <SectionLabel as="p">05 · Por qué puedes confiar</SectionLabel>
           <span className="h-px flex-1 bg-hairline" aria-hidden="true" />
         </div>
 
