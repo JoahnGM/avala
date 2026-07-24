@@ -99,7 +99,7 @@ export function CorrectionSection() {
                 cuenta pasa a pago hoy mismo.
               </ChatBubble>
               <ChatBubble sender="proveedor" label="Proveedor" time="10:18">
-                Mil gracias 🙏
+                Mil gracias <span className="inline-block grayscale">🙏</span>
               </ChatBubble>
             </ol>
 

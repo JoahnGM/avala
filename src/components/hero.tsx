@@ -55,7 +55,7 @@ export function Hero() {
               <p className="font-mono text-caption uppercase tracking-widest text-graphite">
                 {s.label}
               </p>
-              <p className="mt-3 font-display text-display-md leading-none">
+              <p className="mt-3 font-mono text-display-sm font-medium leading-none">
                 {s.value}
               </p>
               <p className="mt-2 text-body text-graphite">{s.note}</p>

@@ -123,7 +123,8 @@ export function DemoPipeline() {
                 {i === 2 ? (
                   <ul>
                     <ChatBubble sender="avala" label="Avala">
-                      Tu RUT venció el 15 de mayo. Envíame el actualizado 🙂
+                      Tu RUT venció el 15 de mayo. Envíame el actualizado{" "}
+                      <span className="inline-block grayscale">🙂</span>
                     </ChatBubble>
                   </ul>
                 ) : null}
