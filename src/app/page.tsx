@@ -1,5 +1,4 @@
 import { ClosingSection } from "@/components/closing-section";
-import { CorrectionSection } from "@/components/correction-section";
 import { DemoPipeline } from "@/components/demo-pipeline";
 import { Hero } from "@/components/hero";
 import { RiskSection } from "@/components/risk-section";
@@ -15,7 +14,6 @@ export default function Home() {
         <Hero />
         <DemoPipeline />
         <RiskSection />
-        <CorrectionSection />
         <TrustSection />
         <ClosingSection />
       </main>
