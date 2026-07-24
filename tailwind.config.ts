@@ -25,6 +25,9 @@ const config: Config = {
         "display-md": ["32px", { lineHeight: "1.1" }],
         "display-sm": ["24px", { lineHeight: "1.2" }],
         body: ["16px", { lineHeight: "1.7" }],
+        // Enlarged reading size for lead paragraphs — the landing leans on this
+        // over 16px to keep body text generous (fewer, bigger words on screen).
+        "body-lg": ["18px", { lineHeight: "1.6" }],
         data: ["14px", { lineHeight: "1.5" }],
         caption: ["12px", { lineHeight: "1.5" }],
         // iOS status-bar / timestamp scale — smaller than caption on purpose,
