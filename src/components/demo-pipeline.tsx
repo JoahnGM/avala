@@ -151,7 +151,31 @@ export function DemoPipeline() {
           ))}
         </ol>
 
-        <p className="mt-16 border-t border-hairline pt-8 text-body-lg font-medium">
+        <div className="mt-16 border-t border-hairline pt-8">
+          <p className="font-mono text-caption uppercase tracking-widest text-graphite">
+            Dos resultados posibles
+          </p>
+          <div className="mt-6 grid gap-6 sm:grid-cols-2">
+            <div className="flex items-center gap-4">
+              <span className="inline-block -rotate-2 border-2 border-approved px-4 py-1 font-stamp text-data uppercase tracking-widest text-approved">
+                APROBADO
+              </span>
+              <p className="text-body text-graphite">
+                Todo en orden. La cuenta entra a pago.
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="inline-block rotate-2 border-2 border-stamp px-4 py-1 font-stamp text-data uppercase tracking-widest text-stamp">
+                REVISAR
+              </span>
+              <p className="text-body text-graphite">
+                Falta algo. AVALA lo resuelve por chat con el proveedor.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <p className="mt-12 text-body-lg font-medium">
           Tu equipo no escribe un solo mensaje.
         </p>
       </div>

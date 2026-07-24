@@ -7,8 +7,8 @@ describe("Hero", () => {
     render(<Hero />);
 
     const heading = screen.getByRole("heading", { level: 1 });
-    expect(heading).toHaveTextContent(/valida y gestiona a tus proveedores/i);
-    expect(heading).toHaveTextContent(/sin riesgo ante la ugpp/i);
+    expect(heading).toHaveTextContent(/deja de revisar proveedores a mano/i);
+    expect(heading).toHaveTextContent(/temerle a la ugpp/i);
   });
 
   it("renders the supporting subheadline in Spanish", () => {

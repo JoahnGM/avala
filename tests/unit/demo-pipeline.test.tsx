@@ -22,10 +22,20 @@ describe("DemoPipeline", () => {
     expect(screen.getByText(/04 · ENTREGA/i)).toBeInTheDocument();
   });
 
-  it("shows the APPROVED stamp as the climax", () => {
+  it("shows the APPROVED stamp as the animated climax", () => {
     render(<DemoPipeline />);
 
-    expect(screen.getByText("APROBADO")).toBeInTheDocument();
+    const stamps = screen.getAllByText("APROBADO");
+    expect(
+      stamps.some((el) => el.className.includes("animate-stamp-land")),
+    ).toBe(true);
+  });
+
+  it("shows both validation outcomes (APROBADO and REVISAR)", () => {
+    render(<DemoPipeline />);
+
+    expect(screen.getByText("REVISAR")).toBeInTheDocument();
+    expect(screen.getByText(/dos resultados posibles/i)).toBeInTheDocument();
   });
 
   it("closes with the no-work-for-your-team line", () => {

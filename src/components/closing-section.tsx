@@ -22,12 +22,23 @@ export function ClosingSection() {
           Sin instalar nada, sin compromiso.
         </p>
 
-        <a
-          href="mailto:hola@avala.co"
-          className="mt-10 inline-block bg-stamp px-6 py-3 font-mono uppercase tracking-widest text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-        >
-          Agenda una demo →
-        </a>
+        <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
+          <a
+            href="mailto:hola@avala.co?subject=Quiero%20agendar%20una%20demo%20de%20AVALA"
+            className="inline-block bg-stamp px-6 py-3 font-mono uppercase tracking-widest text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+          >
+            Agenda una demo →
+          </a>
+          <p className="font-mono text-caption text-graphite">
+            o escríbenos a{" "}
+            <a
+              href="mailto:hola@avala.co"
+              className="underline underline-offset-4 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            >
+              hola@avala.co
+            </a>
+          </p>
+        </div>
       </div>
     </section>
   );

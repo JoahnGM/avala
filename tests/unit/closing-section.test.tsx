@@ -11,11 +11,19 @@ describe("ClosingSection", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders the demo CTA", () => {
+  it("renders the demo CTA pointing to the contact mailbox", () => {
     render(<ClosingSection />);
 
     const cta = screen.getByRole("link", { name: /agenda una demo/i });
-    expect(cta).toHaveAttribute("href", "mailto:hola@avala.co");
+    expect(cta.getAttribute("href")).toMatch(/^mailto:hola@avala\.co/);
+  });
+
+  it("offers a visible email fallback so the CTA is never a silent no-op", () => {
+    render(<ClosingSection />);
+
+    expect(
+      screen.getByRole("link", { name: "hola@avala.co" }),
+    ).toHaveAttribute("href", "mailto:hola@avala.co");
   });
 
   it("anchors the section at #contacto", () => {

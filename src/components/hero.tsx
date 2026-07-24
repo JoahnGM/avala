@@ -1,9 +1,10 @@
 import { SectionLabel } from "@/components/ui/section-label";
 
-// §01 hero. Positioning updated 2026-07-23 with Joahn's explicit approval:
-// broadened from "cuentas de cobro" to managing suppliers, keeping the UGPP
-// hook, as a two-beat headline. Stat figures are ILLUSTRATIVE and flagged in
-// the UI. Flag any further copy change here explicitly in the PR.
+// §01 hero. Headline iterated 2026-07-23 with Joahn's explicit approval:
+// leads with the concrete manual-review pain (UX-review P1) while keeping the
+// broad "proveedores" positioning and the UGPP hook (red accent) in the second
+// beat. Stat figures are ILLUSTRATIVE and flagged in the UI. Flag any further
+// copy change here explicitly in the PR.
 
 type Stat = { label: string; value: string; note: string };
 
@@ -24,10 +25,10 @@ export function Hero() {
 
         <h1 className="mt-8 max-w-4xl font-display uppercase">
           <span className="block text-display-md md:text-display-lg">
-            Valida y gestiona a tus proveedores
+            Deja de revisar proveedores a mano
           </span>
           <span className="mt-2 block text-display-sm md:text-display-md">
-            sin riesgo ante la <span className="text-stamp">UGPP</span>.
+            y de temerle a la <span className="text-stamp">UGPP</span>.
           </span>
         </h1>
 
