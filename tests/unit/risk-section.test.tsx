@@ -37,4 +37,12 @@ describe("RiskSection", () => {
 
     expect(screen.getByText(/cifras ilustrativas/i)).toBeInTheDocument();
   });
+
+  it("does not render the stat numbers in the stamp accent (reserved for actions)", () => {
+    render(<RiskSection />);
+
+    const stat = screen.getByText("60%");
+    expect(stat).not.toHaveClass("text-stamp");
+    expect(stat).toHaveClass("text-ink");
+  });
 });

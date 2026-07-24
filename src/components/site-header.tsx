@@ -13,7 +13,7 @@ export function SiteHeader() {
         <nav aria-label="Acciones principales">
           <a
             href="#contacto"
-            className="bg-stamp px-4 py-2 font-mono text-caption uppercase tracking-widest text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            className="border border-stamp px-4 py-2 font-mono text-caption uppercase tracking-widest text-stamp hover:bg-stamp hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
           >
             Agenda una demo
           </a>

@@ -1,5 +1,6 @@
 import { ChatBubble } from "@/components/ui/chat-bubble";
 import { PhoneFrame } from "@/components/ui/phone-frame";
+import { SectionLabel } from "@/components/ui/section-label";
 
 // §04 "La corrección" — shows AVALA's core differentiator: it talks to the
 // supplier and fixes the paperwork on the finance team's behalf. Four mini
@@ -27,9 +28,7 @@ export function CorrectionSection() {
     <section className="border-t border-hairline">
       <div className="mx-auto max-w-5xl px-6 py-24 md:py-32">
         <div className="flex items-center gap-4">
-          <p className="font-mono text-caption uppercase tracking-widest text-graphite">
-            § 04 · La corrección
-          </p>
+          <SectionLabel as="p">§ 04 · La corrección</SectionLabel>
           <span className="h-px flex-1 bg-hairline" aria-hidden="true" />
         </div>
 

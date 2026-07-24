@@ -54,7 +54,7 @@ export function RiskSection() {
               <p className="font-mono text-caption uppercase tracking-widest text-graphite">
                 Frente · {f.frente}
               </p>
-              <p className="mt-6 font-display text-display-lg leading-none text-stamp">
+              <p className="mt-6 font-display text-display-lg leading-none text-ink">
                 {f.stat}
               </p>
               <h3 className="mt-3 font-display text-display-sm uppercase">

@@ -94,7 +94,7 @@ export function DemoPipeline() {
               <div className="mt-6">
                 {/* 01 · RECIBE — mini document card. */}
                 {i === 0 ? (
-                  <div className="border border-hairline p-4 font-mono text-data">
+                  <div className="border-t border-hairline pt-4 font-mono text-data">
                     <p>pila_febrero_2026.pdf</p>
                     <p className="mt-2 text-graphite">NIT 901.334.208-1</p>
                     <p className="mt-2 text-graphite">
