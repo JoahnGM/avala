@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChatBubble } from "@/components/ui/chat-bubble";
 import { SectionLabel } from "@/components/ui/section-label";
+import { Stamp } from "@/components/ui/stamp";
 
 // §02 "La demo viva" — narrated pipeline. Rationale (client feedback,
 // 2026-07-23): the earlier demo led with the APPROVED stamp, so people saw
@@ -131,12 +132,7 @@ export function DemoPipeline() {
                     because it is the validated state. */}
                 {i === 3 ? (
                   <div className="flex flex-col items-start gap-3">
-                    <span
-                      key={replayKey}
-                      className="inline-block -rotate-2 border-2 border-approved px-5 py-1 font-stamp text-display-sm uppercase tracking-widest text-approved motion-safe:animate-stamp-land"
-                    >
-                      APROBADO
-                    </span>
+                    <Stamp key={replayKey} variant="approved" size="lg" animate />
                     <button
                       type="button"
                       onClick={() => setReplayKey((k) => k + 1)}
@@ -157,17 +153,13 @@ export function DemoPipeline() {
           </p>
           <div className="mt-6 grid gap-6 sm:grid-cols-2">
             <div className="flex items-center gap-4">
-              <span className="inline-block -rotate-2 border-2 border-approved px-4 py-1 font-stamp text-data uppercase tracking-widest text-approved">
-                APROBADO
-              </span>
+              <Stamp variant="approved" size="sm" />
               <p className="text-body text-graphite">
                 Todo en orden. La cuenta entra a pago.
               </p>
             </div>
             <div className="flex items-center gap-4">
-              <span className="inline-block rotate-2 border-2 border-stamp px-4 py-1 font-stamp text-data uppercase tracking-widest text-stamp">
-                REVISAR
-              </span>
+              <Stamp variant="revisar" size="sm" />
               <p className="text-body text-graphite">
                 Falta algo. AVALA lo resuelve por chat con el proveedor.
               </p>
