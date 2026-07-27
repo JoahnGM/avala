@@ -7,7 +7,7 @@ function renderInList(bubble: React.ReactElement) {
 }
 
 describe("ChatBubble", () => {
-  it("renders the sender label and message as a list item", () => {
+  it("exposes the sender label to screen readers and renders the message", () => {
     renderInList(
       <ChatBubble sender="avala" label="Avala">
         Hola, soy AVALA.
@@ -35,15 +35,25 @@ describe("ChatBubble", () => {
     expect(screen.getByText("mensaje recibido")).toHaveClass("border-hairline");
   });
 
-  it("renders action messages in italics within the same bubble", () => {
+  it("renders an attachment as a mono document chip", () => {
     renderInList(
-      <ChatBubble sender="proveedor" label="Proveedor" variant="action">
-        [envía PDF actualizado]
+      <ChatBubble sender="proveedor" label="Proveedor" variant="attachment">
+        rut_actualizado.pdf
       </ChatBubble>,
     );
 
-    const bubble = screen.getByText("[envía PDF actualizado]");
-    expect(bubble).toHaveClass("italic");
-    expect(bubble).toHaveClass("border-hairline");
+    const filename = screen.getByText("rut_actualizado.pdf");
+    expect(filename).toHaveClass("font-mono");
+  });
+
+  it("renders the timestamp and delivery status when provided", () => {
+    renderInList(
+      <ChatBubble sender="proveedor" label="Proveedor" time="9:40" status="Entregado">
+        rut_actualizado.pdf
+      </ChatBubble>,
+    );
+
+    expect(screen.getByText(/9:40/)).toBeInTheDocument();
+    expect(screen.getByText(/entregado/i)).toBeInTheDocument();
   });
 });
