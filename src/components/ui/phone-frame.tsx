@@ -31,8 +31,22 @@ function StatusIcons() {
           fill="none"
           stroke="currentColor"
         />
-        <rect x="2" y="2" width="16" height="8" rx="1" className="fill-current" />
-        <rect x="23" y="4" width="2" height="4" rx="1" className="fill-current" />
+        <rect
+          x="2"
+          y="2"
+          width="16"
+          height="8"
+          rx="1"
+          className="fill-current"
+        />
+        <rect
+          x="23"
+          y="4"
+          width="2"
+          height="4"
+          rx="1"
+          className="fill-current"
+        />
       </svg>
     </span>
   );

@@ -202,3 +202,41 @@ Round 1:  P1 _ · P2 _ · P3 _ · P4 _ · P5 _ · P6 _
 Round 2:  P1 _ · P2 _ · P3 _ · P4 _ · P5 _ · P6 _   (fixes: …)
 Result:   PASS | escalated (<reason>)
 ```
+
+### 2026-07-28 — full landing page — working tree on `a3476a7`
+
+```
+Round 1:  P1 5 · P2 4 · P3 4 · P4 3 · P5 3 · P6 5
+Round 2:  P1 5 · P2 4 · P3 4 · P4 5 · P5 4 · P6 5
+Result:   PASS
+```
+
+Run right after the `design/claims-audit.md` copy corrections landed, so this
+round doubles as a check that fixing the claims didn't cost usability.
+
+**P4 3 → 5.** Measured AA failure: the demo progress rail rendered upcoming
+steps in `text-hairline` on `paper` — **1.28:1** at 12px against AA's 4.5:1, six
+elements effectively invisible (`CLAUDE.md` rule 3). Fixed by carrying step state
+in weight plus the existing ✓-vs-number marker instead of a third hue, so no new
+token was needed. Also extracted `ui/source-note.tsx`: the figure-provenance
+caption had been hand-repeated in `hero.tsx` and `risk-section.tsx`, a
+`heuristics.md` #1 violation introduced by the claims fixes themselves. Verified
+after: 99 text elements checked, **0 AA failures**; the 6 `SourceNote` instances
+resolve to a single class string.
+
+**P5 3 → 4.** Both cases ended `APROBADO`; `Stamp variant="revisar"` existed but
+rendered nowhere on the page, and the "supplier never responds" branch — the one
+the product exists for — was absent. Added a third case (`sinRespuesta`)
+terminating in `REVISAR` with an explicit next action, moved the correction chat
+out of inline JSX into per-case `FLOWS` data so a branch *can* end unresolved,
+and added `← Paso anterior` so the stepper is no longer one-way. Not a 5: "wrong
+document type" is still uncovered.
+
+**Escalated, not invented:** how long AVALA waits before handing a silent
+supplier back to the client, and what it offers then (insist / return / approve
+at own risk). The UI state ships without an SLA number rather than fabricating
+one.
+
+**Left as polish:** every audit-log row in `trust-section.tsx` wraps to two lines
+at both 820px and 1280px (measured 42px against a 21px line-height), which makes
+a record meant to read as tabular look ragged. P3 is at gate, so not fixed here.

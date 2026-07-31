@@ -48,7 +48,12 @@ describe("ChatBubble", () => {
 
   it("renders the timestamp and delivery status when provided", () => {
     renderInList(
-      <ChatBubble sender="proveedor" label="Proveedor" time="9:40" status="Entregado">
+      <ChatBubble
+        sender="proveedor"
+        label="Proveedor"
+        time="9:40"
+        status="Entregado"
+      >
         rut_actualizado.pdf
       </ChatBubble>,
     );

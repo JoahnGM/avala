@@ -34,7 +34,7 @@ const specialElite = Special_Elite({
 export const metadata: Metadata = {
   title: "AVALA — Cuentas de cobro validadas y listas para pagar",
   description:
-    "AVALA revisa PILA, RUT y los demás documentos de tus proveedores y resuelve las correcciones por WhatsApp, para que cada cuenta de cobro llegue lista para pagar.",
+    "AVALA revisa PILA, RUT y los demás documentos de tus proveedores y resuelve las correcciones por WhatsApp, para que tus cuentas de cobro lleguen listas para pagar.",
 };
 
 export default function RootLayout({

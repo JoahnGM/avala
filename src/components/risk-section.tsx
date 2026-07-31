@@ -1,15 +1,20 @@
 import { SectionLabel } from "@/components/ui/section-label";
+import { SourceNote } from "@/components/ui/source-note";
 
 // §03 "Lo que está en juego" — the risk section. Copy adapted from the Lovable
-// reference at Joahn's direction (2026-07-23). The stat numbers are
-// ILLUSTRATIVE for now and flagged as such in the UI — replace with real
-// figures before launch. Flag any copy change here explicitly in the PR.
+// reference at Joahn's direction (2026-07-23), then corrected 2026-07-28
+// against design/claims-audit.md (findings 6, 7, 8, 9). Every figure now
+// carries its own provenance per design/heuristics.md #2: a norm ID from
+// agents/legal-brain.md §1, or an in-place illustrative marker. Flag any copy
+// change here explicitly in the PR.
 
 type Frente = {
   /** Who acts / the front — mono eyebrow (user-facing). */
   frente: string;
-  /** Big headline number. Illustrative for now. */
+  /** Headline number. Must be sourced or marked illustrative via `source`. */
   stat: string;
+  /** Provenance of `stat`, rendered directly beneath it (user-facing). */
+  source: string;
   title: string;
   body: string;
 };
@@ -17,19 +22,22 @@ type Frente = {
 const FRENTES: Frente[] = [
   {
     frente: "UGPP",
-    stat: "60%",
+    stat: "100%",
+    source: "Ley 1607/2012 · art. 179",
     title: "Nómina disfrazada",
-    body: "Si la UGPP considera que tu proveedor es un empleado encubierto, te reclama los aportes y te aplica sanción. El costo lo asumes tú, no él.",
+    body: "Si la UGPP considera que tu proveedor es un empleado encubierto, te reclama los aportes y te sanciona hasta por el 100% de lo que no se liquidó. El costo lo asumes tú, no él.",
   },
   {
     frente: "DIAN",
-    stat: "0%",
-    title: "Deducción perdida",
-    body: "Si el proveedor no está al día con PILA cuando le pagas, la DIAN rechaza el gasto. Adiós beneficio tributario, hola reproceso contable.",
+    stat: "35%",
+    source: "Est. Tributario · art. 240",
+    title: "Deducción en riesgo",
+    body: "Deducir el pago depende de que tu empresa verifique los aportes del proveedor y pueda probarlo. Sin ese soporte la DIAN puede rechazar el gasto, y perder la deducción te cuesta la tarifa de renta.",
   },
   {
     frente: "Proveedores",
     stat: "14 d",
+    source: "Cifra ilustrativa",
     title: "Pagos frenados",
     body: "Cada documento faltante bloquea un pago. El proveedor llama, se enfría la relación, y la próxima urgencia te va a costar más caro.",
   },
@@ -57,6 +65,7 @@ export function RiskSection() {
               <p className="mt-6 font-display text-display-lg leading-none text-ink">
                 {f.stat}
               </p>
+              <SourceNote>{f.source}</SourceNote>
               <h3 className="mt-3 font-display text-display-sm uppercase">
                 {f.title}
               </h3>
@@ -64,10 +73,6 @@ export function RiskSection() {
             </li>
           ))}
         </ul>
-
-        <p className="mt-12 font-mono text-caption uppercase tracking-widest text-graphite">
-          Cifras ilustrativas
-        </p>
       </div>
     </section>
   );

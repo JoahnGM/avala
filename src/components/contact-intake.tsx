@@ -12,7 +12,12 @@ import { ChatBubble } from "@/components/ui/chat-bubble";
 // (country code + number, digits only) for the hand-off to actually deliver.
 const AVALA_WHATSAPP = "57XXXXXXXXXX";
 
-type Question = { key: string; prompt: string; placeholder: string; type: "text" | "tel" };
+type Question = {
+  key: string;
+  prompt: string;
+  placeholder: string;
+  type: "text" | "tel";
+};
 
 const QUESTIONS: Question[] = [
   {
@@ -105,61 +110,84 @@ export function ContactIntake() {
   const current = QUESTIONS[step];
 
   return (
-    <div className="max-w-xl border border-hairline bg-paper">
-      <ol
-        aria-label="Conversación para agendar tu demo"
-        className="space-y-3 px-4 py-5"
-      >
-        {turns.map((turn, i) => (
-          <ChatBubble
-            key={i}
-            sender={turn.from}
-            label={turn.from === "avala" ? "Avala" : "Tú"}
-          >
-            {turn.text}
-          </ChatBubble>
-        ))}
-      </ol>
-
-      {done ? (
-        <p className="border-t border-hairline px-4 py-4 font-mono text-caption text-graphite">
-          ¿No se abrió WhatsApp? Escríbenos a{" "}
-          <a
-            href="mailto:hola@avala.co"
-            className="underline underline-offset-4 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-          >
-            hola@avala.co
-          </a>
-        </p>
-      ) : (
-        <form
-          onSubmit={handleSubmit}
-          className="flex items-center gap-2 border-t border-hairline px-3 py-3"
+    <div className="max-w-xl">
+      <div className="border border-hairline bg-paper">
+        <ol
+          aria-label="Conversación para agendar tu demo"
+          className="space-y-3 px-4 py-5"
         >
-          <label htmlFor="intake-input" className="sr-only">
-            Tu respuesta
-          </label>
-          <input
-            id="intake-input"
-            type={current.type}
-            inputMode={current.type === "tel" ? "tel" : "text"}
-            value={value}
-            onChange={(event) => setValue(event.target.value)}
-            placeholder={current.placeholder}
-            autoComplete="off"
-            className="flex-1 rounded-full border border-hairline bg-paper px-4 py-2 text-data text-ink placeholder:text-graphite focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-          />
-          <button
-            type="submit"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stamp text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+          {turns.map((turn, i) => (
+            <ChatBubble
+              key={i}
+              sender={turn.from}
+              label={turn.from === "avala" ? "Avala" : "Tú"}
+            >
+              {turn.text}
+            </ChatBubble>
+          ))}
+        </ol>
+
+        {done ? (
+          <p className="border-t border-hairline px-4 py-4 font-mono text-caption text-graphite">
+            ¿No se abrió WhatsApp? Escríbenos a{" "}
+            <a
+              href="mailto:hola@avala.co"
+              className="underline underline-offset-4 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            >
+              hola@avala.co
+            </a>
+          </p>
+        ) : (
+          <form
+            onSubmit={handleSubmit}
+            className="flex items-center gap-2 border-t border-hairline px-3 py-3"
           >
-            <span className="sr-only">Enviar</span>
-            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
-              <path d="M12 4l7 7h-4v9h-6v-9H5l7-7z" />
-            </svg>
-          </button>
-        </form>
-      )}
+            <label htmlFor="intake-input" className="sr-only">
+              Tu respuesta
+            </label>
+            <input
+              id="intake-input"
+              type={current.type}
+              inputMode={current.type === "tel" ? "tel" : "text"}
+              value={value}
+              onChange={(event) => setValue(event.target.value)}
+              placeholder={current.placeholder}
+              autoComplete="off"
+              className="flex-1 rounded-full border border-hairline bg-paper px-4 py-2 text-data text-ink placeholder:text-graphite focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            />
+            <button
+              type="submit"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stamp text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            >
+              <span className="sr-only">Enviar</span>
+              <svg
+                viewBox="0 0 24 24"
+                className="h-4 w-4 fill-current"
+                aria-hidden="true"
+              >
+                <path d="M12 4l7 7h-4v9h-6v-9H5l7-7z" />
+              </svg>
+            </button>
+          </form>
+        )}
+      </div>
+
+      {/* claims-audit.md finding 16 — Ley 1581 de 2012 (agents/legal-brain.md
+          N-019) requires authorization and a stated purpose before processing
+          personal data. A compliance product collecting a phone number without
+          one invites the scrutiny it sells protection from. */}
+      <p className="mt-3 text-caption text-graphite">
+        Al enviar autorizas a AVALA a contactarte por WhatsApp o correo para
+        agendar la demo. Usamos tus datos solo para eso y los eliminamos cuando
+        nos lo pidas en{" "}
+        <a
+          href="mailto:hola@avala.co"
+          className="underline underline-offset-4 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+        >
+          hola@avala.co
+        </a>{" "}
+        (Ley 1581 de 2012).
+      </p>
     </div>
   );
 }

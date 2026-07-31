@@ -19,8 +19,8 @@ export function SiteFooter() {
         </div>
 
         <p className="mt-8 max-w-2xl text-caption text-graphite">
-          AVALA no sustituye asesoría tributaria ni contable. Las validaciones se
-          apoyan en las fuentes públicas de la DIAN, la UGPP y los operadores
+          AVALA no sustituye asesoría tributaria ni contable. Las validaciones
+          se apoyan en las fuentes públicas de la DIAN, la UGPP y los operadores
           PILA autorizados en Colombia. La aprobación final de cada pago la
           realiza el cliente.
         </p>
