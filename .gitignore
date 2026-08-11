@@ -145,6 +145,7 @@ vite.config.ts.timestamp-*
 .vite/
 
 # Claude Code session config (local per machine)
+CLAUDE.local.md
 .claude/*
 # ...but commit shared team tooling so it ships with the repo:
 !.claude/commands/

@@ -36,12 +36,86 @@ describe("DemoPipeline (full-arc walkthrough)", () => {
     expect(chat).toBeInTheDocument();
     expect(screen.getByText("rut_actualizado.pdf")).toBeInTheDocument();
 
+    // design/claims-audit.md finding 3 — receiving the supplier's attachment is
+    // not a DIAN confirmation. The agent says what it actually did.
+    expect(
+      screen.getByText(/consulté el estado de tu rut en el portal de la dian/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/confirmado con la dian/i),
+    ).not.toBeInTheDocument();
+
     // 04 lista → APROBADO + we-notify-you-for-payment
     next();
     expect(screen.getByText("APROBADO")).toBeInTheDocument();
+    // design/claims-audit.md finding 14 — the approval stays with the client.
     expect(
-      screen.getByText(/quedó lista para pagar\. tú solo pagas/i),
+      screen.getByText(/quedó lista\. la aprobación la das tú/i),
     ).toBeInTheDocument();
+    expect(screen.queryByText(/tú solo pagas/i)).not.toBeInTheDocument();
+  });
+
+  // design/claims-audit.md finding 17 — fabricated suppliers and an APROBADO
+  // stamp have to be labelled as a simulation.
+  it("labels itself as a simulated demo", () => {
+    render(<DemoPipeline />);
+
+    expect(screen.getByText(/demo simulada/i)).toBeInTheDocument();
+  });
+
+  // design/claims-audit.md finding 5 — no disguised-employment check.
+  it("does not claim a disguised-employment assessment", () => {
+    render(<DemoPipeline />);
+
+    next(); // revisa — the check list renders here
+
+    expect(screen.queryByText(/indicios de nómina/i)).not.toBeInTheDocument();
+  });
+
+  // UX review 2026-07-28, P5 — every fork needs a defined end state and an
+  // explicit next action. This is the only branch that does not end APROBADO.
+  it("ends the no-response case in REVISAR with an explicit next action", () => {
+    render(<DemoPipeline />);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /el proveedor no responde/i }),
+    );
+    next(); // revisa
+    expect(
+      screen.getByText(/pila · último período sin pagar/i),
+    ).toBeInTheDocument();
+
+    next(); // corrige — AVALA writes, supplier stays silent
+    expect(
+      screen.getByText(/sin respuesta del proveedor/i),
+    ).toBeInTheDocument();
+
+    next(); // detenida
+    expect(screen.getByText("REVISAR")).toBeInTheDocument();
+    expect(screen.queryByText("APROBADO")).not.toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /la decisión de insistir, devolverla o pagarla es tuya/i,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  // UX review 2026-07-28, P5 — no one-way flows.
+  it("offers a way back once past the first step", () => {
+    render(<DemoPipeline />);
+
+    expect(
+      screen.queryByRole("button", { name: /paso anterior/i }),
+    ).not.toBeInTheDocument();
+
+    next();
+    const back = screen.getByRole("button", { name: /paso anterior/i });
+    fireEvent.click(back);
+
+    expect(screen.getByText("cuenta_0002.pdf")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /paso anterior/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("skips the correction step for a clean invoice", () => {

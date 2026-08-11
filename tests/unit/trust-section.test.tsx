@@ -7,7 +7,7 @@ describe("TrustSection", () => {
     render(<TrustSection />);
 
     expect(
-      screen.getByRole("heading", { level: 3, name: "DIAN, UGPP y PILA" }),
+      screen.getByRole("heading", { level: 3, name: "DIAN y operadores PILA" }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { level: 3, name: "Cada acción, con firma" }),
@@ -42,9 +42,34 @@ describe("TrustSection", () => {
     expect(
       screen.getByText(/entregó rut_actualizado\.pdf/i),
     ).toBeInTheDocument();
-    expect(screen.getByText(/verificó DIAN · act 7410/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/verificó RUT en DIAN · activo/i),
+    ).toBeInTheDocument();
     expect(
       screen.getByText(/aprobó pago · \$2\.100\.000/i),
     ).toBeInTheDocument();
+  });
+
+  // design/claims-audit.md finding 3 — the log must record a check AVALA
+  // actually performed, not an unexplained code.
+  it("does not log an unexplained activity code", () => {
+    render(<TrustSection />);
+
+    expect(screen.queryByText(/act 7410/i)).not.toBeInTheDocument();
+  });
+
+  // design/claims-audit.md finding 2 — UGPP fiscalizes; it is not a service you
+  // can query about a third party. Name the sources that actually exist.
+  it("names the real sources and does not present UGPP as one", () => {
+    render(<TrustSection />);
+
+    expect(
+      screen.getByText(
+        /la planilla del operador autorizado y el rut en la dian/i,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/cada validación se apoya/i),
+    ).not.toBeInTheDocument();
   });
 });

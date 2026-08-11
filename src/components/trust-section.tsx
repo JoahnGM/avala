@@ -15,7 +15,7 @@ type LogLine = {
 const AUDIT_LOG: LogLine[] = [
   { time: "10:14", actor: "AVALA", detail: "contactó al proveedor #0002" },
   { time: "10:17", actor: "PROV", detail: "entregó rut_actualizado.pdf" },
-  { time: "10:17", actor: "AVALA", detail: "verificó DIAN · act 7410" },
+  { time: "10:17", actor: "AVALA", detail: "verificó RUT en DIAN · activo" },
   { time: "10:18", actor: "USER", detail: "aprobó pago · $2.100.000" },
 ];
 
@@ -38,12 +38,17 @@ export function TrustSection() {
             <p className="font-mono text-caption uppercase tracking-widest text-graphite">
               Fuentes oficiales
             </p>
+            {/* claims-audit.md finding 2: UGPP is the authority that
+                fiscalizes, not a service you can query about a third party.
+                The sources are the planilla from an authorised operador and
+                DIAN's RUT consultation. */}
             <h3 className="mt-6 font-display text-display-sm uppercase">
-              DIAN, UGPP y PILA
+              DIAN y operadores PILA
             </h3>
             <p className="mt-4 text-body-lg text-graphite">
-              Cada validación se apoya en la fuente autorizada, no en una copia
-              intermediada. Si la DIAN cambia, AVALA cambia contigo.
+              Validamos contra la planilla del operador autorizado y el RUT en
+              la DIAN, no contra una copia intermediada. Los criterios los pone
+              la UGPP; cuando la norma cambia, AVALA cambia contigo.
             </p>
           </div>
 

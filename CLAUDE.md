@@ -42,9 +42,15 @@ This landing must demonstrate that mechanism live (submit a document, see the va
 ```
 avala-landing/
 ├── CLAUDE.md
+├── agents/
+│   ├── legal-brain.md     ← normative core: live norms, 2026 constants, validation rules
+│   ├── verbatim.es.md     ← every line an agent may say (ES), ID-bound to the rules
+│   └── README.md          ← load order, ID namespaces, annual refresh protocol
 ├── design/
 │   ├── tokens.md          ← palette, typography, spacing, voice/tone
-│   └── heuristics.md      ← usability rubric, non-negotiable for UI changes
+│   ├── heuristics.md      ← usability rubric, non-negotiable for UI changes
+│   ├── ux-review.md       ← self-iterating UX review rubric (`/ux-review`)
+│   └── claims-audit.md    ← every user-facing claim, checked against legal-brain.md
 ├── src/
 │   ├── components/
 │   └── app/

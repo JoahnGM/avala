@@ -32,9 +32,7 @@ describe("ContactIntake", () => {
   });
 
   it("hands the lead to WhatsApp after the last question", async () => {
-    const openSpy = vi
-      .spyOn(window, "open")
-      .mockImplementation(() => null);
+    const openSpy = vi.spyOn(window, "open").mockImplementation(() => null);
     const user = userEvent.setup();
     render(<ContactIntake />);
 
@@ -52,5 +50,16 @@ describe("ContactIntake", () => {
     expect(screen.getByText(/te escribo por whatsapp/i)).toBeInTheDocument();
 
     openSpy.mockRestore();
+  });
+
+  // design/claims-audit.md finding 16 — Ley 1581 de 2012 requires
+  // authorization and a stated purpose before personal data is processed.
+  it("states the data-processing authorization and purpose", () => {
+    render(<ContactIntake />);
+
+    expect(
+      screen.getByText(/al enviar autorizas a avala a contactarte/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/ley 1581 de 2012/i)).toBeInTheDocument();
   });
 });

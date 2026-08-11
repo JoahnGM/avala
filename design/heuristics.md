@@ -35,3 +35,39 @@ language, because each was hand-built inline instead of sharing a
 visual regression eval — same component, same snapshot baseline, any drift
 between instances shows up as a diff instead of requiring a human to spot it
 in a screen recording.
+
+---
+
+## 2. Claims cite a norm, or say "illustrative" in place
+
+**Rule:** Any user-facing string that makes a regulatory, legal or numeric
+claim must either cite a norm from `agents/legal-brain.md` §1 (an `N-xxx`)
+or be marked illustrative **adjacent to the claim itself**. A section-level
+caption does not qualify. And a claim about a mechanism — what AVALA
+checks, against which source, for which period — must correspond to a rule
+in `agents/legal-brain.md` §4. If no rule covers it, the product doesn't do
+it, and the copy can't say it does.
+
+**Violation signal:** A number rendered at display size with no unit, no
+subject and no source. A check written as a green ✓ whose underlying
+validation nobody can name. An authority cited as a data source when it's
+actually a regulator. A claim stated in the negative ("sin indicios de …")
+that would require evidence the product never sees.
+
+**Origin:** Found 2026-07-28 — `design/claims-audit.md`. Three examples
+from the same audit: `Sanciones UGPP · $0 · en clientes activos`
+(`hero.tsx:17`) is a verifiable regulatory-outcome claim carried only by a
+12px `Cifras ilustrativas` caption 100+ lines below it; `PILA feb-2026`
+(`hero.tsx:21`) names a period that cannot exist yet, because contributions
+are paid mes vencido; and `60%` under `Frente · UGPP`
+(`risk-section.tsx:20`) is unsourced while a real 60% exists in the UGPP
+sanction regime attached to a completely different concept — plausible
+enough to survive review, wrong enough to mislead.
+
+**How this gets checked:** Manually today, against
+`design/claims-audit.md` — every claim there carries a verdict, so a copy
+change either resolves a finding or must not reintroduce one. Two things
+make it mechanisable later: `agents/verbatim.es.md` §F is a literal
+do-not-say list that a lint rule could grep the `src/` tree for, and once
+copy moves out of inline JSX into data, claims can be required to carry an
+`N-xxx` field rather than relying on a reviewer to notice one is missing.

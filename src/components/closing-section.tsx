@@ -16,7 +16,7 @@ export function ClosingSection() {
         </div>
 
         <h2 className="mt-8 max-w-3xl font-display text-display-md uppercase md:text-display-lg">
-          Devuélvele a tu equipo la semana que se le va revisando PDFs.
+          Devuélvele a tu equipo las horas que se le van revisando PDFs.
         </h2>
 
         <p className="mt-8 max-w-2xl text-body-lg text-graphite">

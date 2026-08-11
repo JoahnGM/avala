@@ -1,4 +1,5 @@
 import { SectionLabel } from "@/components/ui/section-label";
+import { SourceNote } from "@/components/ui/source-note";
 import { Stamp } from "@/components/ui/stamp";
 
 // §01 hero. Headline iterated 2026-07-23 with Joahn's explicit approval:
@@ -9,19 +10,46 @@ import { Stamp } from "@/components/ui/stamp";
 // padding. Stat figures are ILLUSTRATIVE and flagged in the UI. Flag any
 // further copy change here explicitly in the PR.
 
-type Stat = { label: string; value: string; note: string };
+// Every figure carries its own provenance (design/heuristics.md #2): a norm
+// from agents/legal-brain.md §1, or an in-place illustrative marker. A
+// section-level caption doesn't qualify — it doesn't attach to the claim it
+// qualifies. The old "$0 sanciones UGPP" stat is gone (claims-audit finding
+// 10): UGPP fiscalizes on a multi-year window, so zero sanctions is what you'd
+// observe either way. Replaced with the sourced mechanism AVALA actually
+// accelerates.
+type Stat = { label: string; value: string; note: string; source: string };
 
 const STATS: Stat[] = [
-  { label: "Ahorro típico", value: "72%", note: "del tiempo de CxP" },
-  { label: "Cuentas / mes", value: "1.400+", note: "validadas por AVALA" },
-  { label: "Sanciones UGPP", value: "$0", note: "en clientes activos" },
+  {
+    label: "Ahorro típico",
+    value: "72%",
+    note: "del tiempo de CxP",
+    source: "Cifra ilustrativa",
+  },
+  {
+    label: "Cuentas / mes",
+    value: "1.400+",
+    note: "validadas por AVALA",
+    source: "Cifra ilustrativa",
+  },
+  {
+    label: "Sanción evitable",
+    value: "100%",
+    note: "si corriges antes del requerimiento",
+    source: "Ley 1607/2012 · art. 179",
+  },
 ];
 
+// Each label must name a validation AVALA can actually perform. "PILA · último
+// período" (not a current-month label) because contributions are paid mes
+// vencido — the current month's planilla cannot exist yet. No
+// disguised-employment check: that turns on subordinación, which no document
+// here can evidence. See design/claims-audit.md findings 1, 4 and 5, and
+// agents/legal-brain.md V-PILA-01 / V-RUT-02 / V-REC-01.
 const CHECKS = [
-  "PILA feb-2026",
+  "PILA · último período",
   "RUT vigente",
-  "DIAN sin obligaciones",
-  "Sin indicios de nómina",
+  "Responsabilidades verificadas",
 ];
 
 function ExpedientePreview() {
@@ -30,7 +58,7 @@ function ExpedientePreview() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="font-mono text-caption uppercase tracking-widest text-graphite">
-            Proveedor
+            Proveedor · ejemplo
           </p>
           <p className="mt-1 font-display text-display-sm uppercase">
             Talleres Bacatá S.A.S.
@@ -45,8 +73,9 @@ function ExpedientePreview() {
       <p className="mt-5 text-body text-graphite">
         Envió su cuenta de cobro{" "}
         <span className="font-mono text-ink">#0043</span> por{" "}
-        <span className="font-mono text-ink">$4.850.000</span>. AVALA revisó sus
-        documentos contra la fuente oficial y la dejó lista para pagar.
+        <span className="font-mono text-ink">$4.850.000</span>. AVALA revisó su
+        planilla con el operador autorizado y su RUT en la DIAN, y la dejó lista
+        para pagar.
       </p>
 
       <p className="mt-6 font-mono text-caption uppercase tracking-widest text-graphite">
@@ -87,8 +116,9 @@ export function Hero() {
             </h1>
 
             <p className="mt-6 max-w-xl text-body-xl text-graphite">
-              AVALA revisa PILA, RUT y DIAN de cada proveedor, corrige lo que
-              falta por chat y te entrega cada cuenta de cobro lista para pagar.
+              AVALA revisa PILA, RUT y DIAN de tus proveedores, corrige lo que
+              falta por chat y te entrega las cuentas de cobro listas para
+              pagar.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
@@ -117,12 +147,10 @@ export function Hero() {
                 {s.value}
               </p>
               <p className="mt-2 text-body text-graphite">{s.note}</p>
+              <SourceNote>{s.source}</SourceNote>
             </div>
           ))}
         </div>
-        <p className="mt-6 font-mono text-caption uppercase tracking-widest text-graphite">
-          Cifras ilustrativas
-        </p>
       </div>
     </section>
   );
