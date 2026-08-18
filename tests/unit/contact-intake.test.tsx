@@ -31,10 +31,10 @@ describe("ContactIntake", () => {
     ).toBeInTheDocument();
   });
 
-  // design/normative-review.md R2-15 — while AVALA_WHATSAPP holds its
-  // placeholder, the hand-off must still deliver. It used to open
-  // wa.me/57XXXXXXXXXX, losing the lead after four answered questions.
-  it("hands the lead off after the last question, never to a dead link", async () => {
+  // design/normative-review.md R2-15 — the hand-off must reach AVALA with the
+  // answers attached. It used to open wa.me/57XXXXXXXXXX, losing the lead after
+  // four answered questions, so the placeholder is asserted against directly.
+  it("hands the lead to WhatsApp after the last question, never to a dead link", async () => {
     const openSpy = vi.spyOn(window, "open").mockImplementation(() => null);
     const user = userEvent.setup();
     render(<ContactIntake />);
@@ -48,9 +48,9 @@ describe("ContactIntake", () => {
     expect(openSpy).toHaveBeenCalledOnce();
     const url = String(openSpy.mock.calls[0][0]);
     expect(url).not.toContain("XXXXXXXXXX");
+    expect(url).toContain("wa.me/573012441488");
     expect(url).toContain(encodeURIComponent("300 123 4567"));
-    expect(url.startsWith("mailto:") || url.includes("wa.me")).toBe(true);
-    expect(screen.getByText(/coordinar tu demo/i)).toBeInTheDocument();
+    expect(screen.getByText(/te escribo por whatsapp/i)).toBeInTheDocument();
 
     openSpy.mockRestore();
   });

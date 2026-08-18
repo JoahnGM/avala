@@ -8,15 +8,15 @@ import { ChatBubble } from "@/components/ui/chat-bubble";
 // backend: on submit it hands the answers off to AVALA prefilled, so the lead
 // actually lands in AVALA's inbox. Reuses the shared ChatBubble.
 //
-// TODO(Joahn): replace AVALA_WHATSAPP with AVALA's real WhatsApp number
-// (country code + number, digits only). While it holds the placeholder, the
-// hand-off falls back to email instead of opening wa.me/57XXXXXXXXXX — an
-// invalid link that dropped every completed intake on the floor after four
-// answered questions. design/normative-review.md R2-15.
-const AVALA_WHATSAPP = "57XXXXXXXXXX";
+// AVALA's WhatsApp: country code + number, digits only. The email fallback
+// below stays as a guard — this used to hold a placeholder, and every completed
+// intake opened wa.me/57XXXXXXXXXX and lost the lead after four answered
+// questions. If the number is ever blanked or mistyped, the hand-off degrades
+// to email instead of to nothing. design/normative-review.md R2-15.
+const AVALA_WHATSAPP = "573012441488";
 const AVALA_EMAIL = "hola@avala.co";
 
-/** Whether AVALA_WHATSAPP is a real number rather than the placeholder. */
+/** Whether AVALA_WHATSAPP is a usable number rather than a placeholder. */
 const whatsappReady = /^\d{10,15}$/.test(AVALA_WHATSAPP);
 
 type Question = {

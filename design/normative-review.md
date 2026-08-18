@@ -270,9 +270,11 @@ the same four answers, so the lead lands somewhere either way. The closing
 bubble and the fallback note follow the channel actually used. The test asserts
 the hand-off URL never contains the placeholder.
 
-**Still open:** the real number. Once `AVALA_WHATSAPP` is set, the WhatsApp path
-turns back on with no other change — that is the only reason the placeholder is
-still in the file.
+**Closed 2026-08-18.** `AVALA_WHATSAPP` now holds the real number
+(`573012441488`), so the intake hands off on WhatsApp as designed. The email
+fallback stays in place as a guard against the number being blanked or mistyped
+again, and the test asserts the hand-off reaches `wa.me/573012441488` with the
+answers attached.
 
 ---
 
