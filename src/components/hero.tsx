@@ -1,54 +1,19 @@
 import { SectionLabel } from "@/components/ui/section-label";
-import { SourceNote } from "@/components/ui/source-note";
-import { Stamp } from "@/components/ui/stamp";
 
-// §01 hero. Headline iterated 2026-07-23 with Joahn's explicit approval:
-// leads with the concrete manual-review pain (UX-review P1) with the UGPP hook
-// (red accent) in the second beat. Object corrected 2026-08-18 at Joahn's
-// direction: what the team reviews by hand is the cuenta de cobro, not the
-// proveedor — the invoice is the unit of work, and the page's title, demo and
-// CTA were already built on it. Two-column layout (copy + a compact expediente preview) so the hero
-// fills the width instead of floating as a narrow text column; tighter vertical
-// padding. Stat figures are ILLUSTRATIVE and flagged in the UI. Flag any
-// further copy change here explicitly in the PR.
-
-// Every figure carries its own provenance (design/heuristics.md #2): a norm
-// from agents/legal-brain.md §1, or an in-place illustrative marker. A
-// section-level caption doesn't qualify — it doesn't attach to the claim it
-// qualifies. The old "$0 sanciones UGPP" stat is gone (claims-audit finding
-// 10): UGPP fiscalizes on a multi-year window, so zero sanctions is what you'd
-// observe either way. Replaced with the sourced mechanism AVALA actually
-// accelerates.
+// §01 hero. Headline iterated 2026-07-23 with Joahn's explicit approval: leads
+// with the concrete manual-review pain (UX-review P1) with the UGPP hook (red
+// accent) in the second beat. Object corrected 2026-08-18 at Joahn's direction:
+// what the team reviews by hand is the cuenta de cobro, not the proveedor.
 //
-// `value` is a figure OR the claim itself. The third stat used to read `100%`,
-// which agents/legal-brain.md §7 marks ⚠ verificar — every sanction percentage
-// there rests on secondary sources, and §2/§6 say a ⚠ verificar value is
-// treated as unavailable, not as true. What §7 does support is structural and
-// stronger: correcting before the requerimiento removes the omisión sanction
-// entirely. Restore a percentage only once §7 is read against the primary
-// text. See design/normative-review.md R2-04.
-type Stat = { label: string; value: string; note: string; source: string };
-
-const STATS: Stat[] = [
-  {
-    label: "Ahorro típico",
-    value: "72%",
-    note: "del tiempo de CxP",
-    source: "Cifra ilustrativa",
-  },
-  {
-    label: "Cuentas / mes",
-    value: "1.400+",
-    note: "validadas por AVALA",
-    source: "Cifra ilustrativa",
-  },
-  {
-    label: "Sanción por omisión",
-    value: "Se elimina",
-    note: "si corriges antes del requerimiento",
-    source: "Ley 1607/2012 art. 179 · mod. Ley 1819/2016 art. 314",
-  },
-];
+// The stat row (`72%` · `1.400+` · the sanction claim) was removed 2026-08-18.
+// Two of the three carried a "Cifra ilustrativa" marker directly under them:
+// an invented figure labelled as invented is worse than no figure, and the space
+// belongs to the live console instead. When real measurements exist, they come
+// back with a source, not with a marker (design/claims-audit.md finding 9).
+//
+// The APROBADO stamp also left this preview: it is the signature element and it
+// lands once, as the demo's payoff. Repeating it here spent it before the page
+// had earned it.
 
 // Each label must name a validation AVALA can actually perform. "PILA · último
 // período" (not a current-month label) because contributions are paid mes
@@ -64,26 +29,29 @@ const CHECKS = [
 
 function ExpedientePreview() {
   return (
-    <div className="border border-hairline bg-paper p-6">
+    <div className="border border-hairline bg-surface p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="font-mono text-caption uppercase tracking-widest text-graphite">
             Proveedor · ejemplo
           </p>
+          {/* A persona natural with a masked NIT: the regime AVALA validates —
+              aportes de independientes — applies to natural persons, and a
+              S.A.S. was outside agents/legal-brain.md §0 entirely.
+              design/normative-review.md R2-01. */}
           <p className="mt-1 font-display text-display-sm uppercase">
-            Talleres Bacatá S.A.S.
+            Julián Pardo Meneses
           </p>
           <p className="mt-1 font-mono text-data text-graphite">
-            NIT 901.334.208-1
+            NIT 1.0XX.XXX.XXX-2
           </p>
         </div>
-        <Stamp variant="approved" size="sm" />
       </div>
 
       <p className="mt-5 text-body text-graphite">
         Envió su cuenta de cobro{" "}
-        <span className="font-mono text-ink">#0043</span> por{" "}
-        <span className="font-mono text-ink">$4.850.000</span>. AVALA revisó su
+        <span className="font-mono text-ink">#0002</span> por{" "}
+        <span className="font-mono text-ink">$2.100.000</span>. AVALA revisó su
         planilla con el operador autorizado y su RUT en la DIAN, y la dejó lista
         para pagar.
       </p>
@@ -94,6 +62,9 @@ function ExpedientePreview() {
       <ul className="mt-3 space-y-2 font-mono text-data text-graphite">
         {CHECKS.map((check) => (
           <li key={check} className="flex gap-2">
+            {/* Not `approved` green: that token marks a validation that just
+                resolved, and this is a static illustration. Keeping it out of
+                the hero is what lets it mean something in the console. */}
             <span className="text-ink" aria-hidden="true">
               &#10003;
             </span>
@@ -126,9 +97,9 @@ export function Hero() {
             </h1>
 
             <p className="mt-6 max-w-xl text-body-xl text-graphite">
-              AVALA revisa PILA, RUT y DIAN de tus proveedores, corrige lo que
-              falta por chat y te entrega las cuentas de cobro listas para
-              pagar.
+              AVALA revisa la planilla y el RUT de tus proveedores, corrige por
+              WhatsApp lo que falte y te entrega las cuentas de cobro listas
+              para pagar.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
@@ -145,21 +116,6 @@ export function Hero() {
           </div>
 
           <ExpedientePreview />
-        </div>
-
-        <div className="mt-14 grid gap-8 border-t border-hairline pt-8 sm:grid-cols-3">
-          {STATS.map((s) => (
-            <div key={s.label}>
-              <p className="font-mono text-caption uppercase tracking-widest text-graphite">
-                {s.label}
-              </p>
-              <p className="mt-3 font-mono text-display-md font-medium leading-none">
-                {s.value}
-              </p>
-              <p className="mt-2 text-body text-graphite">{s.note}</p>
-              <SourceNote>{s.source}</SourceNote>
-            </div>
-          ))}
         </div>
       </div>
     </section>

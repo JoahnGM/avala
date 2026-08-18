@@ -1,9 +1,16 @@
 import { SectionLabel } from "@/components/ui/section-label";
 
-// §05 "Por qué puedes confiar" — the trust section. This is a compliance /
+// §04 "Por qué puedes confiar" — the trust section. This is a compliance /
 // finance product, so the goal here is credibility: official sources, an
 // auditable trail, and a human who signs off at the end. Copy is user-facing
 // and stays in Spanish, "tú" voice. Flag any copy change here in the PR.
+//
+// The audit-log block now names what the record is FOR (2026-08-18,
+// design/normative-review.md R2-12): under N-009/N-010 the deduction is
+// conditioned on the contratante's own documented verification, so the log is
+// not generic diligence — it is the evidence the client needs. It also resolves
+// the tension with "tu equipo no toca nada": AVALA performs the check, the
+// record proves the client discharged a duty that is legally theirs.
 
 /** A single audit-log line, split into columns so it renders tabular. */
 type LogLine = {
@@ -61,7 +68,9 @@ export function TrustSection() {
               Cada acción, con firma
             </h3>
             <p className="mt-4 text-body-lg text-graphite">
-              Todo lo que AVALA hace queda registrado, listo para auditoría.
+              Todo lo que AVALA hace queda registrado. Ese registro es tu
+              soporte: la ley condiciona la deducción del pago a que tu empresa
+              verifique los aportes del proveedor y pueda probarlo.
             </p>
             <ol className="mt-6 space-y-1 font-mono text-caption text-graphite">
               {AUDIT_LOG.map((line) => (

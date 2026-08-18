@@ -14,9 +14,12 @@ describe("Hero", () => {
   it("renders the supporting subheadline in Spanish", () => {
     render(<Hero />);
 
+    // design/normative-review.md R2-10 — DIAN is the authority the RUT is
+    // consulted at, not a third document alongside PILA and RUT.
     expect(
-      screen.getByText(/revisa pila, rut y dian de tus proveedores/i),
+      screen.getByText(/revisa la planilla y el rut de tus proveedores/i),
     ).toBeInTheDocument();
+    expect(screen.queryByText(/pila, rut y dian/i)).not.toBeInTheDocument();
   });
 
   it("renders the demo CTA", () => {
@@ -27,55 +30,39 @@ describe("Hero", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders the stats, each with its provenance in place", () => {
+  // The stat row was removed 2026-08-18: two of its three figures carried a
+  // "Cifra ilustrativa" marker directly beneath them, and an invented number
+  // labelled as invented reads worse than no number at all. It also means no
+  // unverified sanction percentage can live in the hero (R2-04).
+  it("publishes no unsourced or illustrative figures", () => {
     render(<Hero />);
 
-    expect(screen.getByText("72%")).toBeInTheDocument();
-    expect(screen.getByText("1.400+")).toBeInTheDocument();
-    expect(screen.getByText("Se elimina")).toBeInTheDocument();
-
-    // design/heuristics.md #2 — provenance sits next to the figure it
-    // qualifies, so there are two illustrative markers, not one caption.
-    expect(screen.getAllByText("Cifra ilustrativa")).toHaveLength(2);
-    expect(
-      screen.getByText("Ley 1607/2012 art. 179 · mod. Ley 1819/2016 art. 314"),
-    ).toBeInTheDocument();
-  });
-
-  // design/normative-review.md R2-04 — every sanction percentage in
-  // agents/legal-brain.md §7 is ⚠ verificar, and §2/§6 treat such a value as
-  // unavailable. The structural claim needs no figure, and the citation has to
-  // carry the article's rewrite (N-013) or it points at superseded text.
-  it("does not publish an unverified sanction percentage", () => {
-    render(<Hero />);
-
+    expect(screen.queryByText(/cifra ilustrativa/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("72%")).not.toBeInTheDocument();
+    expect(screen.queryByText("1.400+")).not.toBeInTheDocument();
     expect(screen.queryByText("100%")).not.toBeInTheDocument();
-    expect(
-      screen.queryByText("Ley 1607/2012 · art. 179"),
-    ).not.toBeInTheDocument();
-  });
-
-  // design/claims-audit.md finding 10 — "$0 sanciones UGPP" was an
-  // unfalsifiable outcome claim on a multi-year fiscalization window. Replaced
-  // with the sourced mechanism AVALA actually accelerates.
-  it("does not claim a zero-sanction track record", () => {
-    render(<Hero />);
-
     expect(screen.queryByText("$0")).not.toBeInTheDocument();
-    expect(screen.queryByText(/sanciones ugpp/i)).not.toBeInTheDocument();
-    expect(
-      screen.getByText(/si corriges antes del requerimiento/i),
-    ).toBeInTheDocument();
   });
 
-  it("renders a named supplier story in the preview", () => {
+  // design/normative-review.md R2-01 — a S.A.S. is a persona jurídica, outside
+  // the scope of every rule this page depicts, and cannot invoice by cuenta de
+  // cobro at all.
+  it("renders a persona natural in the preview, not a S.A.S.", () => {
     render(<Hero />);
 
-    expect(screen.getByText("Talleres Bacatá S.A.S.")).toBeInTheDocument();
+    expect(screen.getByText("Julián Pardo Meneses")).toBeInTheDocument();
+    expect(screen.queryByText(/S\.A\.S\./)).not.toBeInTheDocument();
     expect(
       screen.getByText(/avala revisó su planilla.*lista para pagar/i),
     ).toBeInTheDocument();
-    expect(screen.getByText("APROBADO")).toBeInTheDocument();
+  });
+
+  // The stamp is the signature element and it lands once, as the demo's
+  // payoff. Repeating it in the hero spent it before the page earned it.
+  it("does not spend the stamp in the hero", () => {
+    render(<Hero />);
+
+    expect(screen.queryByText("APROBADO")).not.toBeInTheDocument();
   });
 
   // design/claims-audit.md finding 2 — "la fuente oficial" implied a single

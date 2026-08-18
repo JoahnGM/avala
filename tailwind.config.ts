@@ -8,6 +8,11 @@ const config: Config = {
     extend: {
       colors: {
         paper: "#EEEAE0",
+        // The product's own surface: a white document sitting on the paper
+        // ground. Added 2026-08-18 with Joahn's approval — the live console and
+        // the expediente preview are artifacts, and they read as artifacts only
+        // when they are lighter than the page they sit on.
+        surface: "#FFFFFF",
         ink: "#211F1B",
         stamp: "#B23A2E",
         approved: "#3F5D3A",

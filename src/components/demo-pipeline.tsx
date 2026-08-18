@@ -1,162 +1,264 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChatBubble } from "@/components/ui/chat-bubble";
 import { SectionLabel } from "@/components/ui/section-label";
 import { Stamp } from "@/components/ui/stamp";
 
-// §02 "Cómo funciona" — the full arc, step by step (client feedback 2026-07-24:
-// the demo must show the whole journey, not just validation). The visitor picks
-// a case and steps through: la cuenta llega → AVALA revisa los documentos → (si
-// falta algo) AVALA corrige con el proveedor por chat → lista para pagar, te
-// avisamos. Simulated, no backend. The correction chat (formerly §04) now lives
-// inside the "corrige" step. Reuses ChatBubble + Stamp.
+// §02 "Cómo funciona" — the live console. Rewritten 2026-08-18 at Joahn's
+// direction, from the AVALA ENGINE reference: the product must RUN on screen
+// instead of asking the visitor to click through four steps. One `surface` card
+// assembles itself top-down — checks resolve, the WhatsApp correction opens
+// inside the same card, the report lands at the bottom — because that is the
+// actual mechanism: nobody at the client's side drives it either.
 //
-// The chat lines live in the FLOWS data, not inline JSX, so a case can end
-// unresolved — see the "sinRespuesta" branch, added by the UX review 2026-07-28
-// (P5). Wording is sourced from agents/verbatim.es.md; when a line changes there
-// it must change here too, until the two are wired together for real.
+// What the rewrite fixed on the way (design/normative-review.md):
+// R2-01 — the suppliers were `S.A.S.`, personas jurídicas, outside the entire
+//   scope of agents/legal-brain.md §0. They are personas naturales now, with
+//   masked NITs, and the case states the contributor type out loud (Q-CLS-05).
+// R2-02 — the old correction case failed `V-RUT-03` (RUT desactualizado) and
+//   closed with a line that answers `V-RUT-01` (activo). The canonical case is
+//   now the missing planilla, whose ask and close are the same rule.
+//
+// Every line the agent says is `agents/verbatim.es.md`; the ID is in a comment
+// next to it until the two files are wired together for real.
 
-type CaseId = "limpio" | "correccion" | "sinRespuesta";
-type StageKey = "llega" | "revisa" | "corrige" | "lista" | "detenida";
+type CheckId = "rut" | "resp" | "pila";
+type CheckStatus = "pendiente" | "ok" | "falta";
+type CaseId = "resuelve" | "sinRespuesta";
 
-type Check = { ok: boolean; text: string };
-/** One turn of the AVALA↔proveedor chat. Lines come from agents/verbatim.es.md. */
+type Check = {
+  id: CheckId;
+  /** Two-letter marker, dossier style. */
+  code: string;
+  label: string;
+  /** The rule in agents/legal-brain.md §4 this check runs. */
+  rule: string;
+};
+
 type Turn = {
   sender: "avala" | "proveedor";
   variant?: "text" | "attachment";
   text: string;
+  time: string;
 };
-type Flow = {
+
+/** One beat of the console. `after` is the pause before it lands, in ms. */
+type Step =
+  | { kind: "check"; id: CheckId; status: CheckStatus; after: number }
+  | { kind: "turn"; turn: Turn; after: number }
+  | { kind: "outcome"; after: number };
+
+type Case = {
   label: string;
-  origin: string;
+  cuenta: string;
   file: string;
   supplier: string;
+  /** Middle digits masked: these are illustrative people, not real cédulas. */
   nit: string;
   amount: string;
-  checks: Check[];
-  stages: StageKey[];
-  /** Intro line above the chat in the "corrige" stage. */
-  correccionIntro?: string;
-  /** The chat itself — data, not inline JSX, so each case can differ. */
-  turns?: Turn[];
-  /** Copy for a terminal outcome that is NOT approved. */
-  detenida?: { body: string; next: string };
+  tipo: string;
+  contact: string;
+  steps: Step[];
+  outcome: {
+    variant: "approved" | "revisar";
+    artifact?: { name: string; meta: string; confirms: string[] };
+    body: string;
+    next: string;
+  };
 };
 
-const STAGE_LABEL: Record<StageKey, string> = {
-  llega: "Llega la cuenta",
-  revisa: "AVALA revisa",
-  corrige: "AVALA corrige con el proveedor",
-  lista: "Lista para pagar",
-  detenida: "Detenida · pasa a tu equipo",
-};
-
-const FLOWS: Record<CaseId, Flow> = {
-  limpio: {
-    label: "Cuenta al día",
-    origin: "La subió tu proveedor.",
-    file: "cuenta_0043.pdf",
-    supplier: "Talleres Bacatá S.A.S.",
-    nit: "NIT 901.334.208-1",
-    amount: "$4.850.000",
-    checks: [
-      { ok: true, text: "PILA · último período" },
-      { ok: true, text: "RUT vigente" },
-      { ok: true, text: "Responsabilidades verificadas" },
-    ],
-    stages: ["llega", "revisa", "lista"],
+const CHECKS: Check[] = [
+  { id: "rut", code: "RU", label: "RUT activo en la DIAN", rule: "V-RUT-01" },
+  {
+    id: "resp",
+    code: "RE",
+    label: "Responsabilidades vs. servicio facturado",
+    rule: "V-RUT-02",
   },
-  correccion: {
-    label: "Falta el RUT",
-    origin: "La subió tu equipo.",
+  {
+    id: "pila",
+    code: "PI",
+    label: "Planilla · último período cerrado",
+    rule: "V-PILA-01",
+  },
+];
+
+const CASES: Record<CaseId, Case> = {
+  resuelve: {
+    label: "El proveedor responde",
+    cuenta: "CUENTA #0002",
     file: "cuenta_0002.pdf",
-    supplier: "Distribuidora Andes S.A.S.",
-    nit: "NIT 900.512.774-3",
+    supplier: "Julián Pardo Meneses",
+    nit: "NIT 1.0XX.XXX.XXX-2",
     amount: "$2.100.000",
-    checks: [
-      { ok: true, text: "PILA · último período" },
-      { ok: false, text: "RUT desactualizado (2023)" },
-      { ok: true, text: "Responsabilidades verificadas" },
+    tipo: "Prestación de servicios personales · base 40% del contrato",
+    contact: "Julián Pardo",
+    steps: [
+      { kind: "check", id: "rut", status: "ok", after: 620 },
+      { kind: "check", id: "resp", status: "ok", after: 620 },
+      { kind: "check", id: "pila", status: "falta", after: 760 },
+      {
+        kind: "turn",
+        after: 820,
+        // S-COR-01 + S-COR-02
+        turn: {
+          sender: "avala",
+          text: "Hola Julián, soy AVALA. Estoy revisando tu cuenta de cobro #0002 y me falta tu planilla de aportes del último período. ¿Me la puedes enviar por aquí?",
+          time: "09:13",
+        },
+      },
+      {
+        kind: "turn",
+        after: 1200,
+        turn: {
+          sender: "proveedor",
+          variant: "attachment",
+          text: "planilla_2026-07.pdf",
+          time: "09:41",
+        },
+      },
+      { kind: "check", id: "pila", status: "ok", after: 700 },
+      {
+        kind: "turn",
+        after: 620,
+        // S-COR-11
+        turn: {
+          sender: "avala",
+          text: "Listo, Julián. Con eso tu cuenta #0002 queda completa y pasa a aprobación del cliente. Gracias por la rapidez.",
+          time: "09:42",
+        },
+      },
+      { kind: "outcome", after: 620 },
     ],
-    stages: ["llega", "revisa", "corrige", "lista"],
-    correccionIntro:
-      "Falta el RUT vigente. AVALA le escribe al proveedor y lo resuelve — tu equipo no toca nada.",
-    turns: [
-      {
-        sender: "avala",
-        text: "Hola Julián, soy AVALA. Tu RUT está desactualizado; envíame el vigente para procesar la cuenta #0002.",
+    outcome: {
+      variant: "approved",
+      artifact: {
+        name: "reporte_cuenta_0002.pdf",
+        meta: "PDF · 3 anexos · 09:42",
+        confirms: [
+          "Planilla del último período cerrado, pagada",
+          "RUT activo en la DIAN",
+          "Responsabilidades verificadas",
+        ],
       },
-      {
-        sender: "proveedor",
-        variant: "attachment",
-        text: "rut_actualizado.pdf",
-      },
-      // Verbatim S-COR-09 (agents/verbatim.es.md). Says what AVALA actually did
-      // — queried DIAN's RUT service — instead of presenting the supplier's
-      // attachment as a DIAN confirmation. See design/claims-audit.md finding 3.
-      {
-        sender: "avala",
-        text: "Consulté el estado de tu RUT en el portal de la DIAN y aparece activo. Con eso ya puedo seguir.",
-      },
-    ],
+      body: "Tu equipo no escribió un solo mensaje.",
+      next: "La cuenta queda lista y el reporte queda de soporte. La aprobación la das tú.",
+    },
   },
-  // The branch the product exists to handle, and the only one with a terminal
-  // outcome that is not APROBADO. Added by the UX review 2026-07-28 (P5): every
-  // fork needs a defined end state and an explicit next action, and the page
-  // previously showed no validation that stays unresolved.
   sinRespuesta: {
     label: "El proveedor no responde",
-    origin: "La subió tu equipo.",
+    cuenta: "CUENTA #0117",
     file: "cuenta_0117.pdf",
-    supplier: "Servicios Chía S.A.S.",
-    nit: "NIT 901.702.455-6",
+    supplier: "Marcela Ríos Gaitán",
+    nit: "NIT 52.6XX.XXX-7",
     amount: "$3.240.000",
-    checks: [
-      { ok: false, text: "PILA · último período sin pagar" },
-      { ok: true, text: "RUT vigente" },
-      { ok: true, text: "Responsabilidades verificadas" },
-    ],
-    stages: ["llega", "revisa", "corrige", "detenida"],
-    correccionIntro:
-      "El período no aparece pagado. AVALA le escribe al proveedor y le hace seguimiento.",
-    turns: [
-      // S-COR-01 + S-COR-06, then S-COR-10 as the follow-up.
+    tipo: "Prestación de servicios personales · base 40% del contrato",
+    contact: "Marcela Ríos",
+    steps: [
+      { kind: "check", id: "rut", status: "ok", after: 620 },
+      { kind: "check", id: "resp", status: "ok", after: 620 },
+      { kind: "check", id: "pila", status: "falta", after: 760 },
       {
-        sender: "avala",
-        text: "Hola Marcela, soy AVALA. Me aparece el último período sin pagar. En cuanto lo pagues y me envíes el soporte, sigo con la cuenta #0117.",
+        kind: "turn",
+        after: 820,
+        // S-COR-01 + S-COR-06
+        turn: {
+          sender: "avala",
+          text: "Hola Marcela, soy AVALA. Me aparece el último período sin pagar. En cuanto lo pagues y me envíes el soporte, sigo con la cuenta #0117.",
+          time: "09:13",
+        },
       },
       {
-        sender: "avala",
-        text: "Marcela, quedo pendiente de tu planilla para poder cerrar la cuenta #0117.",
+        kind: "turn",
+        after: 1400,
+        // S-COR-10
+        turn: {
+          sender: "avala",
+          text: "Marcela, quedo pendiente de tu planilla para poder cerrar la cuenta #0117.",
+          time: "16:20",
+        },
       },
+      { kind: "outcome", after: 900 },
     ],
-    detenida: {
-      body: "El proveedor no ha respondido, así que la cuenta no queda lista: pagarla sin el aporte al día es justo lo que la UGPP fiscaliza.",
+    outcome: {
+      variant: "revisar",
+      body: "El proveedor no respondió, así que la cuenta no queda lista: pagarla sin el aporte al día es justo lo que la UGPP fiscaliza.",
       next: "AVALA te la pasa con el detalle de lo que falta y quién lo debe corregir. La decisión de insistir, devolverla o pagarla es tuya.",
     },
   },
 };
 
-export function DemoPipeline() {
-  const [caseId, setCaseId] = useState<CaseId>("correccion");
-  const [step, setStep] = useState(0);
-  const flow = FLOWS[caseId];
-  const stages = flow.stages;
-  const stage = stages[step];
-  const isLast = step === stages.length - 1;
+const STATUS_LABEL: Record<CheckStatus, string> = {
+  pendiente: "En cola",
+  ok: "OK",
+  falta: "Falta",
+};
 
-  function selectCase(id: CaseId) {
-    setCaseId(id);
-    setStep(0);
+function prefersReducedMotion() {
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
+type DemoPipelineProps = {
+  /**
+   * Multiplier on every pause. Tests pass `0` to resolve the whole sequence
+   * synchronously instead of waiting out the real cadence.
+   */
+  speed?: number;
+};
+
+export function DemoPipeline({ speed = 1 }: DemoPipelineProps) {
+  const [caseId, setCaseId] = useState<CaseId>("resuelve");
+  const [phase, setPhase] = useState(0);
+  const active = CASES[caseId];
+  const steps = active.steps;
+  const running = phase < steps.length;
+
+  // The console runs itself. Reduced motion gets the finished state instead of
+  // a sequence — the information is the same, the movement is what is optional.
+  useEffect(() => {
+    if (!running) return;
+    if (prefersReducedMotion()) {
+      setPhase(steps.length);
+      return;
+    }
+    const timer = window.setTimeout(
+      () => setPhase((p) => p + 1),
+      steps[phase].after * speed,
+    );
+    return () => window.clearTimeout(timer);
+  }, [phase, running, steps, speed]);
+
+  function replay(next: CaseId) {
+    setCaseId(next);
+    setPhase(0);
   }
+
+  const applied = steps.slice(0, phase);
+  const status: Record<CheckId, CheckStatus> = {
+    rut: "pendiente",
+    resp: "pendiente",
+    pila: "pendiente",
+  };
+  for (const step of applied) {
+    if (step.kind === "check") status[step.id] = step.status;
+  }
+  const turns = applied.flatMap((step) =>
+    step.kind === "turn" ? [step.turn] : [],
+  );
+  const settled = applied.some((step) => step.kind === "outcome");
+  const other: CaseId = caseId === "resuelve" ? "sinRespuesta" : "resuelve";
 
   return (
     <section className="border-t border-hairline">
       <div className="mx-auto max-w-5xl px-6 py-16 md:py-20">
         <div className="flex items-center gap-4">
-          {/* claims-audit.md finding 17 — the walkthrough uses fabricated
-              suppliers and lands an APROBADO stamp, so it has to say so. */}
+          {/* claims-audit.md finding 17 — fabricated supplier, real-looking
+              stamp: it has to say it is simulated. */}
           <SectionLabel as="p" secondary="Demo simulada">
             02 · Cómo funciona
           </SectionLabel>
@@ -168,189 +270,168 @@ export function DemoPipeline() {
         </h2>
 
         <p className="mt-8 max-w-2xl text-body-lg text-graphite">
-          Elige un caso y míralo completo: AVALA recibe, revisa y corrige con el
-          proveedor. Cuando queda lista te avisa; cuando no se puede resolver,
-          te dice exactamente qué falta.
+          Esto es AVALA trabajando: revisa los documentos, le escribe al
+          proveedor lo que falte y cierra la cuenta. No tienes que hacer nada
+          para verlo — igual que en la vida real.
         </p>
 
-        {/* Case picker */}
-        <div className="mt-10 flex flex-wrap gap-2">
-          {(Object.keys(FLOWS) as CaseId[]).map((id) => {
-            const selected = id === caseId;
-            return (
-              <button
-                key={id}
-                type="button"
-                aria-pressed={selected}
-                onClick={() => selectCase(id)}
-                className={`px-3 py-1.5 font-mono text-caption uppercase tracking-widest focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${
-                  selected
-                    ? "bg-ink text-paper"
-                    : "border border-hairline text-graphite hover:text-ink"
-                }`}
-              >
-                {FLOWS[id].label}
-              </button>
-            );
-          })}
-        </div>
+        {/* The console. `surface` is the product's own artifact sitting on the
+            page's paper ground (design/tokens.md). */}
+        <div className="mt-10 border border-ink bg-surface">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-hairline px-5 py-3">
+            <p className="font-mono text-caption uppercase tracking-widest text-graphite">
+              {active.cuenta} · {active.file}
+            </p>
+            <p
+              className={`font-mono text-caption uppercase tracking-widest ${
+                running ? "text-stamp" : "text-graphite"
+              }`}
+            >
+              {running ? "● En vivo" : "Verificación cerrada"}
+            </p>
+          </div>
 
-        <div className="mt-6 border border-hairline">
-          {/* Progress rail */}
-          <ol className="flex flex-wrap gap-x-6 gap-y-2 border-b border-hairline p-4">
-            {stages.map((key, i) => {
-              const state =
-                i < step ? "done" : i === step ? "current" : "upcoming";
-              return (
-                <li
-                  key={key}
-                  aria-current={state === "current" ? "step" : undefined}
-                  // Upcoming steps used `text-hairline` (1.28:1 on paper) —
-                  // an AA failure per CLAUDE.md rule 3. State is now carried by
-                  // weight and by the ✓-vs-number marker instead of a third
-                  // hue, so every step stays readable. UX review 2026-07-28, P4.
-                  className={`flex items-center gap-2 font-mono text-caption uppercase tracking-widest ${
-                    state === "current"
-                      ? "font-medium text-ink"
-                      : "text-graphite"
-                  }`}
-                >
-                  <span aria-hidden="true">
-                    {state === "done" ? "✓" : `0${i + 1}`}
-                  </span>
-                  {STAGE_LABEL[key]}
-                </li>
-              );
-            })}
-          </ol>
+          <div className="px-5 py-5" aria-live="polite">
+            {/* Expediente head */}
+            <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+              <p className="font-display text-display-sm uppercase">
+                {active.supplier}
+              </p>
+              <p className="font-mono text-data text-graphite">
+                {active.nit} · {active.amount}
+              </p>
+            </div>
+            {/* Q-CLS-05: the type is asked, never inferred from a trade name
+                (agents/legal-brain.md §3) — and it decides the whole base. */}
+            <p className="mt-1 font-mono text-caption text-graphite">
+              {active.tipo}
+            </p>
 
-          {/* Stage content */}
-          <div className="min-h-64 p-6" aria-live="polite">
-            {stage === "llega" ? (
-              <div>
+            {/* Checks */}
+            <ul className="mt-6 border-t border-hairline">
+              {CHECKS.map((check) => {
+                const state = status[check.id];
+                return (
+                  <li
+                    key={check.id}
+                    className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-hairline py-3"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="flex h-7 w-7 shrink-0 items-center justify-center border border-hairline font-mono text-caption text-graphite"
+                    >
+                      {check.code}
+                    </span>
+                    <span className="flex-1 text-body text-ink">
+                      {check.label}
+                    </span>
+                    <span className="font-mono text-caption uppercase tracking-widest text-graphite">
+                      {check.rule}
+                    </span>
+                    <span
+                      className={`w-24 text-right font-mono text-data uppercase ${
+                        state === "ok"
+                          ? "text-approved"
+                          : state === "falta"
+                            ? "text-stamp"
+                            : "text-graphite"
+                      }`}
+                    >
+                      {state === "ok" ? "✓ " : state === "falta" ? "✗ " : ""}
+                      {STATUS_LABEL[state]}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+
+            {/* The correction, inside the same card */}
+            {turns.length > 0 ? (
+              <div className="mt-6">
                 <p className="font-mono text-caption uppercase tracking-widest text-graphite">
-                  {flow.origin}
-                </p>
-                <div className="mt-3 font-mono text-data">
-                  <p className="text-ink">{flow.file}</p>
-                  <p className="mt-1 text-graphite">{flow.supplier}</p>
-                  <p className="mt-1 text-graphite">
-                    {flow.nit} · {flow.amount}
-                  </p>
-                </div>
-              </div>
-            ) : null}
-
-            {stage === "revisa" ? (
-              <div>
-                <p className="text-body text-graphite">
-                  AVALA revisa los documentos: PILA, RUT y DIAN.
-                </p>
-                <ul className="mt-4 space-y-2 font-mono text-data">
-                  {flow.checks.map((check) => (
-                    <li key={check.text} className="flex items-start gap-2">
-                      <span
-                        aria-hidden="true"
-                        className={check.ok ? "text-ink" : "text-stamp"}
-                      >
-                        {check.ok ? "✓" : "✗"}
-                      </span>
-                      <span className="text-graphite">{check.text}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-
-            {stage === "corrige" ? (
-              <div>
-                <p className="text-body text-graphite">
-                  {flow.correccionIntro}
+                  {active.contact} · WhatsApp · proveedor
                 </p>
                 <ol
                   aria-label="Conversación entre AVALA y el proveedor"
-                  className="mt-4 max-w-md space-y-3"
+                  className="mt-3 max-w-md space-y-3"
                 >
-                  {flow.turns?.map((turn) => (
+                  {turns.map((turn) => (
                     <ChatBubble
                       key={turn.text}
                       sender={turn.sender}
                       label={turn.sender === "avala" ? "Avala" : "Proveedor"}
                       variant={turn.variant}
+                      time={turn.time}
                     >
                       {turn.text}
                     </ChatBubble>
                   ))}
                 </ol>
-                {flow.detenida ? (
-                  <p className="mt-4 font-mono text-caption uppercase tracking-widest text-graphite">
-                    Sin respuesta del proveedor
-                  </p>
+              </div>
+            ) : null}
+
+            {/* What you actually receive */}
+            {settled ? (
+              <div className="mt-6 border-t border-hairline pt-5">
+                {active.outcome.artifact ? (
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <p className="font-mono text-data text-ink">
+                        {active.outcome.artifact.name}
+                      </p>
+                      <p className="mt-1 font-mono text-caption text-graphite">
+                        {active.outcome.artifact.meta}
+                      </p>
+                    </div>
+                    <Stamp variant={active.outcome.variant} size="lg" animate />
+                  </div>
+                ) : (
+                  <Stamp variant={active.outcome.variant} size="lg" animate />
+                )}
+
+                {active.outcome.artifact ? (
+                  <ul className="mt-5 space-y-2 font-mono text-data text-graphite">
+                    {active.outcome.artifact.confirms.map((line) => (
+                      <li key={line} className="flex gap-2">
+                        <span className="text-approved" aria-hidden="true">
+                          &#10003;
+                        </span>
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
                 ) : null}
-              </div>
-            ) : null}
 
-            {stage === "lista" ? (
-              <div>
-                <Stamp variant="approved" size="lg" animate />
-                {/* claims-audit.md finding 14 — the approval is the client's,
-                    so the demo can't end on "tú solo pagas". */}
-                <p className="mt-4 text-body-lg text-ink">
-                  Te avisamos: la cuenta quedó lista. La aprobación la das tú.
+                <p className="mt-5 text-body-lg text-ink">
+                  {active.outcome.body}
                 </p>
-              </div>
-            ) : null}
-
-            {stage === "detenida" && flow.detenida ? (
-              <div>
-                <Stamp variant="revisar" size="lg" animate />
-                <p className="mt-4 text-body-lg text-ink">
-                  {flow.detenida.body}
-                </p>
-                <p className="mt-3 text-body text-graphite">
-                  {flow.detenida.next}
+                <p className="mt-2 text-body text-graphite">
+                  {active.outcome.next}
                 </p>
               </div>
             ) : null}
           </div>
 
-          {/* Control */}
-          <div className="flex flex-wrap items-center gap-3 border-t border-hairline p-4">
-            {/* A back action so the walkthrough isn't one-way — UX review
-                2026-07-28, P5 (no dead ends, a way back always available). */}
-            {step > 0 ? (
-              <button
-                type="button"
-                onClick={() => setStep((s) => s - 1)}
-                className="border border-hairline px-4 py-2 font-mono text-caption uppercase tracking-widest text-graphite hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-              >
-                ← Paso anterior
-              </button>
-            ) : null}
-
-            {isLast ? (
-              <button
-                type="button"
-                onClick={() => setStep(0)}
-                className="border border-hairline px-4 py-2 font-mono text-caption uppercase tracking-widest text-graphite hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-              >
-                Ver de nuevo
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setStep((s) => s + 1)}
-                className="bg-stamp px-5 py-2.5 font-mono text-data uppercase tracking-widest text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-              >
-                Siguiente paso →
-              </button>
-            )}
+          <div className="flex flex-wrap items-center gap-3 border-t border-hairline px-5 py-4">
+            <button
+              type="button"
+              onClick={() => replay(caseId)}
+              className="border border-hairline px-4 py-2 font-mono text-caption uppercase tracking-widest text-graphite hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            >
+              Ver de nuevo
+            </button>
+            {/* Both endings stay reachable — the UX review requires every fork
+                to have a defined end state — but the visitor is no longer asked
+                to choose one before the demo has shown them anything. */}
+            <button
+              type="button"
+              onClick={() => replay(other)}
+              className="border border-hairline px-4 py-2 font-mono text-caption uppercase tracking-widest text-graphite hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            >
+              {CASES[other].label} →
+            </button>
           </div>
         </div>
-
-        <p className="mt-10 text-body-lg font-medium">
-          Tu equipo no escribe un solo mensaje.
-        </p>
       </div>
     </section>
   );
