@@ -1,26 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SectionLabel } from "@/components/ui/section-label";
 
-// §03 "Alcance" — replaces manifesto-section.tsx (2026-08-18, Joahn's
-// direction after the Cifrato reference).
+// §03 "Alcance" — five items, one open, a panel that redraws for the open one.
 //
-// What was worth taking from that page is not its palette — near-black with an
-// acid-green accent is one of the AI-landing defaults design/tokens.md exists
-// to avoid — but how it communicates: FIVE items, ONE open. Four are titles
-// only; the open one carries a sentence and redraws the panel beside it. Our
-// sections show everything at once, which is why they read as dense even when
-// the copy is short.
+// P3-1 — the list used to advance itself and come to rest on item 05, so a
+// visitor who arrived late met the product at its limit instead of its value.
+// Autoplay is gone: 01 is open, the marker shows state (+/–), and the open item
+// carries a `stamp` rule down its left edge.
+// P3-2 — the panel animates in on change (`panel-in`), so the click and the new
+// content read as cause and effect rather than as a swap on the same ground.
+// P1-1 — the closing item is a handoff, not a wall: the base of contributions
+// is where the client's accountant takes over, and the expediente is built so
+// they can. ARL IV-V and the documento soporte are stated as the client's own
+// obligations, which is what they are (N-011, N-014).
 //
-// Folding the old manifesto in as the last item is the same principle applied
-// once more: one section instead of two, and the list ends on the boundary
-// rather than on the sales pitch. That last item is also the landing-level
-// answer to design/normative-review.md R2-07, R2-08 and R2-09 — the three
-// validations the product does not perform, said out loud instead of left for
-// the reader to assume.
+// Norm citations and rule IDs render in `evidence`, not `graphite` (P1-5).
 
-type PanelLine = { label: string; value: string };
+type PanelLine = { label: string; value: string; evidence?: boolean };
 
 type Item = {
   id: string;
@@ -52,8 +50,16 @@ const ITEMS: Item[] = [
     body: "No contra una copia que el proveedor mandó: contra la planilla del operador autorizado y el RUT en la DIAN.",
     panelTitle: "Fuentes",
     lines: [
-      { label: "Operador PILA", value: "Planilla del último período cerrado · V-PILA-01" },
-      { label: "DIAN", value: "Estado del RUT y responsabilidades · V-RUT-01 · V-RUT-02" },
+      {
+        label: "Operador PILA",
+        value: "Planilla del último período cerrado · V-PILA-01",
+        evidence: true,
+      },
+      {
+        label: "DIAN",
+        value: "Estado del RUT y responsabilidades · V-RUT-01 · V-RUT-02",
+        evidence: true,
+      },
     ],
   },
   {
@@ -64,38 +70,50 @@ const ITEMS: Item[] = [
     panelTitle: "Corrección",
     lines: [
       { label: "Canal", value: "WhatsApp · AVALA ↔ proveedor" },
-      { label: "Ejemplo", value: "«Me falta tu planilla del último período. ¿Me la envías?»" },
+      {
+        label: "Ejemplo",
+        value: "«Me falta tu planilla del último período. ¿Me la envías?»",
+      },
     ],
   },
   {
     id: "entrega",
     marker: "04",
-    title: "Te queda el soporte",
-    body: "El reporte y el registro de cada acción, con hora y actor. De eso depende que puedas deducir el pago.",
+    title: "Te queda el expediente",
+    body: "El reporte y el registro de cada acción, con hora y actor. De eso depende que tu empresa pueda deducir el pago.",
     panelTitle: "Salida",
     lines: [
       { label: "Reporte", value: "reporte_cuenta_0002.pdf · 3 anexos" },
-      { label: "Registro", value: "Ley 1393/2010 arts. 26-27 · E.T. art. 108 par. 2" },
+      {
+        label: "Registro",
+        value: "Ley 1393/2010 arts. 26-27 · E.T. art. 108 par. 2",
+        evidence: true,
+      },
     ],
   },
   {
-    id: "limite",
+    id: "handoff",
     marker: "05",
-    title: "Lo que no hace",
-    body: "AVALA verifica que los documentos existan, estén vigentes y correspondan al período verificable. Hasta ahí llega, y conviene que lo sepas antes y no después.",
-    panelTitle: "Fuera de alcance",
+    title: "Dónde entra tu contador",
+    body: "AVALA arma el expediente y lo deja listo para quien decide. Estas tres cosas son de tu empresa, y conviene saberlo antes y no después.",
+    panelTitle: "Handoff",
     lines: [
       {
-        label: "Base de aportes",
-        value: "No recalcula el IBC — que es lo que la UGPP fiscaliza",
+        label: "Base de aportes (IBC)",
+        value:
+          "Te dejamos planilla, período y valor del contrato en un solo lugar; el IBC lo define tu contador",
       },
       {
         label: "ARL clases IV y V",
-        value: "En contratos de más de un mes ese aporte lo paga tu empresa",
+        value:
+          "En contratos de más de un mes ese aporte lo paga tu empresa, no el proveedor · Decreto 723/2013",
+        evidence: true,
       },
       {
         label: "Documento soporte",
-        value: "Si el proveedor no factura, lo genera tu empresa · Res. DIAN 000165/2023",
+        value:
+          "Si el proveedor no está obligado a facturar, lo genera tu empresa · Res. DIAN 000165/2023",
+        evidence: true,
       },
     ],
     strikes: [
@@ -106,24 +124,8 @@ const ITEMS: Item[] = [
   },
 ];
 
-/** How long each item holds before the list advances itself. */
-const HOLD_MS = 5200;
-
 export function ScopeSection() {
   const [active, setActive] = useState(0);
-  // Advancing stops for good once the visitor picks an item: at that point they
-  // are reading, and a list that moves under a reader is a bug, not a feature.
-  const [autoplay, setAutoplay] = useState(true);
-
-  useEffect(() => {
-    if (!autoplay || active >= ITEMS.length - 1) return;
-    const timer = window.setTimeout(
-      () => setActive((i) => i + 1),
-      HOLD_MS,
-    );
-    return () => window.clearTimeout(timer);
-  }, [active, autoplay]);
-
   const item = ITEMS[active];
 
   return (
@@ -145,42 +147,48 @@ export function ScopeSection() {
             {ITEMS.map((entry, i) => {
               const open = i === active;
               return (
-                <li key={entry.id} className="border-t border-hairline last:border-b">
+                <li
+                  key={entry.id}
+                  className={`border-t border-hairline last:border-b ${
+                    open ? "border-l-2 border-l-stamp pl-4" : "pl-0"
+                  }`}
+                >
                   <button
                     type="button"
                     aria-expanded={open}
                     aria-controls={`scope-panel-${entry.id}`}
-                    onClick={() => {
-                      setActive(i);
-                      setAutoplay(false);
-                    }}
+                    onClick={() => setActive(i)}
                     className="flex w-full items-baseline gap-4 py-4 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
                   >
                     <span className="font-mono text-caption tracking-widest text-graphite">
                       {entry.marker}
                     </span>
                     <span
-                      className={`font-display text-display-sm uppercase ${
+                      className={`flex-1 font-display text-display-sm uppercase ${
                         open ? "text-ink" : "text-graphite"
                       }`}
                     >
                       {entry.title}
                     </span>
+                    {/* P3-1 — state affordance: the list has to look openable
+                        before it is opened. */}
+                    <span
+                      aria-hidden="true"
+                      className={`font-mono text-data ${
+                        open ? "text-stamp" : "text-graphite"
+                      }`}
+                    >
+                      {open ? "–" : "+"}
+                    </span>
                   </button>
 
                   {open ? (
-                    <div id={`scope-panel-${entry.id}`}>
-                      <p className="max-w-prose pb-4 pl-10 text-body-lg text-graphite">
-                        {entry.body}
-                      </p>
-                      {autoplay && i < ITEMS.length - 1 ? (
-                        <span
-                          key={active}
-                          aria-hidden="true"
-                          className="block h-px origin-left bg-stamp motion-safe:animate-scope-progress motion-reduce:hidden"
-                        />
-                      ) : null}
-                    </div>
+                    <p
+                      id={`scope-panel-${entry.id}`}
+                      className="max-w-prose pb-5 pl-10 text-body-lg text-graphite"
+                    >
+                      {entry.body}
+                    </p>
                   ) : null}
                 </li>
               );
@@ -189,7 +197,10 @@ export function ScopeSection() {
 
           {/* The panel redraws for the open item — same idea as the reference's
               illustration, in our material: a document, not a 3D render. */}
-          <div className="border border-hairline bg-surface p-6">
+          <div
+            key={item.id}
+            className="border border-hairline bg-surface p-6 motion-safe:animate-panel-in"
+          >
             <p className="font-mono text-caption uppercase tracking-widest text-graphite">
               {item.panelTitle}
             </p>
@@ -199,7 +210,11 @@ export function ScopeSection() {
                   <dt className="font-mono text-caption uppercase tracking-widest text-graphite">
                     {line.label}
                   </dt>
-                  <dd className="mt-1 font-mono text-data text-ink">
+                  <dd
+                    className={`mt-1 font-mono text-data ${
+                      line.evidence ? "text-evidence" : "text-ink"
+                    }`}
+                  >
                     {line.value}
                   </dd>
                 </div>

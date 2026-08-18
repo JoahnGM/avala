@@ -15,7 +15,8 @@ near-black + neon accent, broadsheet newspaper layout).
 | `ink` | `#211F1B` | Primary text, primary UI chrome. Warm near-black, not pure black. |
 | `stamp` | `#B23A2E` | Primary accent. CTAs, links, the "REVISAR" stamp state. Used deliberately, not decoratively. |
 | `approved` | `#3F5D3A` | Reserved ONLY for the "APROBADO" success state. Never used as a decorative color elsewhere — if it shows up, something was approved. |
-| `graphite` | `#6B6759` | Secondary text, captions, muted labels. |
+| `graphite` | `#6B6759` | Secondary text, captions, decorative mono labels (`mono-label`). |
+| `evidence` | `#5A5648` | Legal and normative mono text (`mono-evidence`): rule IDs, norm citations, the footer disclaimer. 6.11:1 on `paper`, 7.34:1 on `surface` — the trust content must not be the least legible text on the page. |
 | `hairline` | `#D6D0C2` | Dividers, borders, table rules. |
 
 Rule: `approved` (green) only appears when something has actually passed
@@ -87,6 +88,7 @@ colors: {
   stamp: '#B23A2E',
   approved: '#3F5D3A',
   graphite: '#6B6759',
+  evidence: '#5A5648',
   hairline: '#D6D0C2',
 },
 fontFamily: {

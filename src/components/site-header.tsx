@@ -6,8 +6,9 @@ export function SiteHeader() {
           <span className="font-display uppercase text-ink text-display-sm">
             AVALA
           </span>
+          {/* P2-5 — "Proveedores · Colombia" read as a site FOR suppliers. */}
           <span className="hidden font-mono text-caption uppercase tracking-widest text-graphite sm:block">
-            Proveedores · Colombia
+            Pagos a proveedores · Colombia
           </span>
         </div>
         <nav aria-label="Acciones principales">

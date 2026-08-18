@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChatBubble } from "@/components/ui/chat-bubble";
 import { SectionLabel } from "@/components/ui/section-label";
 import { Stamp } from "@/components/ui/stamp";
@@ -214,14 +214,34 @@ type DemoPipelineProps = {
 export function DemoPipeline({ speed = 1 }: DemoPipelineProps) {
   const [caseId, setCaseId] = useState<CaseId>("resuelve");
   const [phase, setPhase] = useState(0);
+  // P3-3 — the sequence used to start on mount, so anyone arriving mid-page met
+  // a half-finished console with no way to know it. It now waits for the card
+  // to be on screen. Where IntersectionObserver is unavailable it starts at
+  // once rather than never.
+  const [armed, setArmed] = useState(
+    typeof IntersectionObserver === "undefined",
+  );
+  const consoleRef = useRef<HTMLDivElement | null>(null);
   const active = CASES[caseId];
   const steps = active.steps;
   const running = phase < steps.length;
 
+  useEffect(() => {
+    if (armed || !consoleRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) setArmed(true);
+      },
+      { threshold: 0.35 },
+    );
+    observer.observe(consoleRef.current);
+    return () => observer.disconnect();
+  }, [armed]);
+
   // The console runs itself. Reduced motion gets the finished state instead of
   // a sequence — the information is the same, the movement is what is optional.
   useEffect(() => {
-    if (!running) return;
+    if (!running || !armed) return;
     if (prefersReducedMotion()) {
       setPhase(steps.length);
       return;
@@ -231,7 +251,7 @@ export function DemoPipeline({ speed = 1 }: DemoPipelineProps) {
       steps[phase].after * speed,
     );
     return () => window.clearTimeout(timer);
-  }, [phase, running, steps, speed]);
+  }, [phase, running, armed, steps, speed]);
 
   function replay(next: CaseId) {
     setCaseId(next);
@@ -257,11 +277,7 @@ export function DemoPipeline({ speed = 1 }: DemoPipelineProps) {
     <section className="border-t border-hairline">
       <div className="mx-auto max-w-5xl px-6 py-16 md:py-20">
         <div className="flex items-center gap-4">
-          {/* claims-audit.md finding 17 — fabricated supplier, real-looking
-              stamp: it has to say it is simulated. */}
-          <SectionLabel as="p" secondary="Demo simulada">
-            02 · Cómo funciona
-          </SectionLabel>
+          <SectionLabel as="p">02 · Cómo funciona</SectionLabel>
           <span className="h-px flex-1 bg-hairline" aria-hidden="true" />
         </div>
 
@@ -277,8 +293,8 @@ export function DemoPipeline({ speed = 1 }: DemoPipelineProps) {
 
         {/* The console. `surface` is the product's own artifact sitting on the
             page's paper ground (design/tokens.md). */}
-        <div className="mt-10 border border-ink bg-surface">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-hairline px-5 py-3">
+        <div ref={consoleRef} className="mt-10 border border-ink bg-surface">
+          <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
             <p className="font-mono text-caption uppercase tracking-widest text-graphite">
               {active.cuenta} · {active.file}
             </p>
@@ -287,8 +303,19 @@ export function DemoPipeline({ speed = 1 }: DemoPipelineProps) {
                 running ? "text-stamp" : "text-graphite"
               }`}
             >
-              {running ? "● En vivo" : "Verificación cerrada"}
+              {running
+                ? `● En vivo · paso ${Math.min(phase + 1, steps.length)} de ${steps.length}`
+                : "Verificación cerrada"}
             </p>
+          </div>
+
+          {/* P3-3 — how far along the sequence is, so a late arrival can tell
+              a half-drawn console from a finished one. */}
+          <div className="h-px w-full bg-hairline" aria-hidden="true">
+            <div
+              className="h-px origin-left bg-stamp transition-transform duration-300 ease-out"
+              style={{ transform: `scaleX(${phase / steps.length})` }}
+            />
           </div>
 
           <div className="px-5 py-5" aria-live="polite">
@@ -325,7 +352,7 @@ export function DemoPipeline({ speed = 1 }: DemoPipelineProps) {
                     <span className="flex-1 text-body text-ink">
                       {check.label}
                     </span>
-                    <span className="font-mono text-caption uppercase tracking-widest text-graphite">
+                    <span className="font-mono text-caption uppercase tracking-widest text-evidence">
                       {check.rule}
                     </span>
                     <span
@@ -430,6 +457,52 @@ export function DemoPipeline({ speed = 1 }: DemoPipelineProps) {
             >
               {CASES[other].label} →
             </button>
+          </div>
+        </div>
+
+        {/* claims-audit.md finding 17 — the walkthrough uses a fabricated
+            supplier and lands a real-looking stamp, so it has to say so. P2-6
+            moved it here from the section eyebrow: announcing the simulation
+            before the payoff disarmed the strongest piece on the page. */}
+        <p className="mt-3 font-mono text-caption text-graphite">
+          Ejemplo con datos anonimizados.
+        </p>
+
+        {/* P1-2 — the single biggest adoption objection: AVALA writes to your
+            supplier in the first person, and the page never said from what
+            number, whether the supplier knows it is an agent, or what happens
+            when they answer something off-script. */}
+        <div className="mt-12 grid gap-8 border-t border-hairline pt-8 md:grid-cols-3">
+          <div>
+            <p className="font-mono text-caption uppercase tracking-widest text-graphite">
+              Quién escribe
+            </p>
+            <p className="mt-3 text-body text-ink">
+              AVALA se presenta como el asistente de tu empresa en el primer
+              mensaje. Nunca dice ser una persona ni escribe a nombre de alguien
+              de tu equipo.
+            </p>
+          </div>
+          <div>
+            <p className="font-mono text-caption uppercase tracking-widest text-graphite">
+              Desde qué número
+            </p>
+            <p className="mt-3 text-body text-ink">
+              Siempre el mismo número de AVALA,{" "}
+              <span className="font-mono text-evidence">+57 301 244 1488</span>.
+              Tu proveedor lo guarda una vez y reconoce el remitente en cada
+              cuenta.
+            </p>
+          </div>
+          <div>
+            <p className="font-mono text-caption uppercase tracking-widest text-graphite">
+              Si responde otra cosa
+            </p>
+            <p className="mt-3 text-body text-ink">
+              Si el proveedor pregunta algo que no son documentos —cuándo le
+              pagan, un reclamo, una duda legal— la conversación pasa a una
+              persona de tu equipo. El agente no improvisa.
+            </p>
           </div>
         </div>
       </div>

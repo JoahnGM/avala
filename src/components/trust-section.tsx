@@ -1,16 +1,15 @@
-import { SectionLabel } from "@/components/ui/section-label";
-
-// §04 "Por qué puedes confiar" — the trust section. This is a compliance /
-// finance product, so the goal here is credibility: official sources, an
-// auditable trail, and a human who signs off at the end. Copy is user-facing
-// and stays in Spanish, "tú" voice. Flag any copy change here in the PR.
+// §04 "Por qué puedes confiar" — the trust section.
 //
-// The audit-log block now names what the record is FOR (2026-08-18,
-// design/normative-review.md R2-12): under N-009/N-010 the deduction is
-// conditioned on the contratante's own documented verification, so the log is
-// not generic diligence — it is the evidence the client needs. It also resolves
-// the tension with "tu equipo no toca nada": AVALA performs the check, the
-// record proves the client discharged a duty that is legally theirs.
+// P3-4 — this is the page's one act break. Every section lived on the same
+// paper with 1px dividers, so the scroll read flat and §03 and §04 blurred
+// together. Inverting to `ink` uses no new colour: paper on ink is 13.69:1, and
+// secondary text moves to `hairline` (10.7:1) because `graphite` on ink is
+// 3.08:1 and would fail AA.
+// P3-6 — the third column carried three lines against six; it is the most
+// important claim on the page and it read unfinished. It now holds its weight
+// and carries the norm that makes it true.
+// P1-5 — norm citations render in `hairline`, the light-ground equivalent of
+// `evidence` on this inverted panel.
 
 /** A single audit-log line, split into columns so it renders tabular. */
 type LogLine = {
@@ -21,18 +20,20 @@ type LogLine = {
 
 const AUDIT_LOG: LogLine[] = [
   { time: "10:14", actor: "AVALA", detail: "contactó al proveedor #0002" },
-  { time: "10:17", actor: "PROV", detail: "entregó rut_actualizado.pdf" },
+  { time: "10:17", actor: "PROV", detail: "entregó planilla_2026-07.pdf" },
   { time: "10:17", actor: "AVALA", detail: "verificó RUT en DIAN · activo" },
   { time: "10:18", actor: "USER", detail: "aprobó pago · $2.100.000" },
 ];
 
 export function TrustSection() {
   return (
-    <section className="border-t border-hairline">
-      <div className="mx-auto max-w-5xl px-6 py-16 md:py-20">
+    <section className="border-t border-hairline bg-ink text-paper">
+      <div className="mx-auto max-w-5xl px-6 py-16 md:py-24">
         <div className="flex items-center gap-4">
-          <SectionLabel as="p">04 · Por qué puedes confiar</SectionLabel>
-          <span className="h-px flex-1 bg-hairline" aria-hidden="true" />
+          <p className="font-mono text-caption uppercase tracking-widest text-hairline">
+            04 · Por qué puedes confiar
+          </p>
+          <span className="h-px flex-1 bg-paper/25" aria-hidden="true" />
         </div>
 
         {/* Visible eyebrow above carries the section number; this h2 gives the
@@ -41,18 +42,16 @@ export function TrustSection() {
 
         <div className="mt-16 grid gap-x-8 gap-y-16 md:grid-cols-3">
           {/* Block 1 — official sources */}
-          <div className="border-t border-hairline pt-6">
-            <p className="font-mono text-caption uppercase tracking-widest text-graphite">
+          <div className="border-t border-paper/25 pt-6">
+            <p className="font-mono text-caption uppercase tracking-widest text-hairline">
               Fuentes oficiales
             </p>
             {/* claims-audit.md finding 2: UGPP is the authority that
-                fiscalizes, not a service you can query about a third party.
-                The sources are the planilla from an authorised operador and
-                DIAN's RUT consultation. */}
+                fiscalizes, not a service you can query about a third party. */}
             <h3 className="mt-6 font-display text-display-sm uppercase">
               DIAN y operadores PILA
             </h3>
-            <p className="mt-4 text-body-lg text-graphite">
+            <p className="mt-4 text-body-lg text-hairline">
               Validamos contra la planilla del operador autorizado y el RUT en
               la DIAN, no contra una copia intermediada. Los criterios los pone
               la UGPP; cuando la norma cambia, AVALA cambia contigo.
@@ -60,19 +59,19 @@ export function TrustSection() {
           </div>
 
           {/* Block 2 — auditable record, with a mini audit log below the copy */}
-          <div className="border-t border-hairline pt-6">
-            <p className="font-mono text-caption uppercase tracking-widest text-graphite">
+          <div className="border-t border-paper/25 pt-6">
+            <p className="font-mono text-caption uppercase tracking-widest text-hairline">
               Registro auditable
             </p>
             <h3 className="mt-6 font-display text-display-sm uppercase">
               Cada acción, con firma
             </h3>
-            <p className="mt-4 text-body-lg text-graphite">
+            <p className="mt-4 text-body-lg text-hairline">
               Todo lo que AVALA hace queda registrado. Ese registro es tu
               soporte: la ley condiciona la deducción del pago a que tu empresa
               verifique los aportes del proveedor y pueda probarlo.
             </p>
-            <ol className="mt-6 space-y-1 font-mono text-caption text-graphite">
+            <ol className="mt-6 space-y-1 font-mono text-caption text-hairline">
               {AUDIT_LOG.map((line) => (
                 <li
                   key={`${line.time}-${line.detail}`}
@@ -87,16 +86,25 @@ export function TrustSection() {
           </div>
 
           {/* Block 3 — human in the loop */}
-          <div className="border-t border-hairline pt-6">
-            <p className="font-mono text-caption uppercase tracking-widest text-graphite">
+          <div className="border-t border-paper/25 pt-6">
+            <p className="font-mono text-caption uppercase tracking-widest text-hairline">
               Humano en el loop
             </p>
             <h3 className="mt-6 font-display text-display-sm uppercase">
               Tú firmas al final
             </h3>
-            <p className="mt-4 text-body-lg text-graphite">
-              AVALA prepara la cuenta y explica cada decisión. El botón de pagar
-              sigue siendo tuyo, siempre. Nada sale sin tu aprobación.
+            <p className="mt-4 text-body-lg text-hairline">
+              AVALA prepara la cuenta y explica cada decisión con la regla que
+              aplicó. El botón de pagar sigue siendo tuyo, siempre: nada sale
+              sin tu aprobación.
+            </p>
+            <p className="mt-4 text-body-lg text-hairline">
+              No es una preferencia de producto. La verificación de los aportes
+              es una obligación de tu empresa, y ninguna herramienta puede
+              asumirla por ti — lo que sí puede es dejarte con qué probarla.
+            </p>
+            <p className="mt-4 font-mono text-caption text-hairline">
+              Ley 1393/2010 arts. 26-27 · E.T. art. 108 par. 2
             </p>
           </div>
         </div>

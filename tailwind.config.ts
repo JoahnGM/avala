@@ -17,6 +17,13 @@ const config: Config = {
         stamp: "#B23A2E",
         approved: "#3F5D3A",
         graphite: "#6B6759",
+        // P1-5 — the mono face carries two different jobs at the same small
+        // size: decorative labels, and the legal/normative evidence the whole
+        // trust argument rests on. `graphite` clears AA at 4.71:1, which is too
+        // thin a margin for 11-12px citations, so evidence gets its own token
+        // at 6.11:1 on paper / 7.34:1 on surface. Rule IDs, norms and the
+        // disclaimer use this; eyebrows and captions stay `graphite`.
+        evidence: "#5A5648",
         hairline: "#D6D0C2",
       },
       fontFamily: {
@@ -54,12 +61,12 @@ const config: Config = {
         bubble: "15rem",
       },
       keyframes: {
-        // The scope list advances itself, one item at a time; this is the
-        // hairline that shows how long the current item has left. Linear, no
-        // easing — it is a timer, not a flourish.
-        "scope-progress": {
-          from: { transform: "scaleX(0)" },
-          to: { transform: "scaleX(1)" },
+        // P3-2 — the scope panel redraws when another item opens. Without a
+        // transition the content swaps in place on the same ground and the
+        // cause (the click) reads as unrelated to the effect (new content).
+        "panel-in": {
+          from: { opacity: "0", transform: "translateY(6px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
         },
         // Signature element (design/tokens.md): the stamp lands on the
         // document — fast scale-down with a slight overshoot, no fade-in tail.
@@ -70,7 +77,7 @@ const config: Config = {
         },
       },
       animation: {
-        "scope-progress": "scope-progress 5200ms linear both",
+        "panel-in": "panel-in 180ms cubic-bezier(0.2, 0, 0, 1) both",
         "stamp-land": "stamp-land 240ms cubic-bezier(0.16, 1.1, 0.3, 1) both",
       },
     },

@@ -31,8 +31,8 @@ describe("ScopeSection", () => {
 
     expect(screen.getByText(/se revisa contra la fuente/i)).toBeInTheDocument();
     expect(screen.getByText(/avala corrige con el proveedor/i)).toBeInTheDocument();
-    expect(screen.getByText(/te queda el soporte/i)).toBeInTheDocument();
-    expect(screen.getByText(/lo que no hace/i)).toBeInTheDocument();
+    expect(screen.getByText(/te queda el expediente/i)).toBeInTheDocument();
+    expect(screen.getByText(/dónde entra tu contador/i)).toBeInTheDocument();
   });
 
   it("redraws the panel for the item the visitor opens", async () => {
@@ -54,24 +54,47 @@ describe("ScopeSection", () => {
   // product does not perform. Copy cannot close the gaps, but leaving them
   // unsaid lets a reader take "PILA ✓" for "UGPP-safe", which is the one
   // misreading that costs the client money.
-  it("states the boundary: base, ARL and documento soporte", async () => {
+  it("hands the base off to the accountant instead of stating a dead end", async () => {
     const user = userEvent.setup();
     render(<ScopeSection />);
 
-    await user.click(screen.getByRole("button", { name: /lo que no hace/i }));
+    await user.click(
+      screen.getByRole("button", { name: /dónde entra tu contador/i }),
+    );
 
-    expect(screen.getByText(/no recalcula el ibc/i)).toBeInTheDocument();
-    expect(screen.getByText(/ese aporte lo paga tu empresa/i)).toBeInTheDocument();
+    // P1-1 — the base is where the client's accountant takes over, and the
+    // expediente is built so they can. Stated as a handoff, never as a claim
+    // that AVALA computes it.
     expect(
-      screen.getByText(/si el proveedor no factura, lo genera tu empresa/i),
+      screen.getByText(/el ibc lo define tu contador/i),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(/ese aporte lo paga tu empresa, no el proveedor/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/lo genera tu empresa · res\. dian 000165\/2023/i),
+    ).toBeInTheDocument();
+  });
+
+  // P3-1 — the list used to advance itself and come to rest on the closing
+  // item, so a late arrival met the product at its limit instead of its value.
+  it("opens on the first item, not on the boundary", () => {
+    render(<ScopeSection />);
+
+    const open = screen
+      .getAllByRole("button")
+      .filter((b) => b.getAttribute("aria-expanded") === "true");
+    expect(open).toHaveLength(1);
+    expect(open[0]).toHaveTextContent(/llega la cuenta de cobro/i);
   });
 
   it("keeps the anti-dashboard positioning inside the closing item", async () => {
     const user = userEvent.setup();
     render(<ScopeSection />);
 
-    await user.click(screen.getByRole("button", { name: /lo que no hace/i }));
+    await user.click(
+      screen.getByRole("button", { name: /dónde entra tu contador/i }),
+    );
 
     expect(screen.getByText("Un dashboard nuevo")).toBeInTheDocument();
     expect(screen.getByText("Otro login para tu equipo")).toBeInTheDocument();

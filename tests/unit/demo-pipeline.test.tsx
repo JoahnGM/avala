@@ -8,10 +8,27 @@ import { DemoPipeline } from "@/components/demo-pipeline";
 const runs = () => render(<DemoPipeline speed={0} />);
 
 describe("DemoPipeline", () => {
-  it("marks the walkthrough as simulated", () => {
+  // P2-6 — the marker moved out of the section eyebrow to a caption under the
+  // frame: announcing the simulation before the payoff disarmed the strongest
+  // piece on the page. It still has to be stated (claims-audit finding 17).
+  it("marks the walkthrough as simulated, below the frame", () => {
     runs();
 
-    expect(screen.getByText(/demo simulada/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/ejemplo con datos anonimizados/i),
+    ).toBeInTheDocument();
+  });
+
+  // P1-2 — the biggest adoption objection: who writes to my supplier, from
+  // what number, and what happens when they answer something else.
+  it("answers who writes to the supplier, from where, and the human fallback", () => {
+    runs();
+
+    expect(screen.getByText(/nunca dice ser una persona/i)).toBeInTheDocument();
+    expect(screen.getByText("+57 301 244 1488")).toBeInTheDocument();
+    expect(
+      screen.getByText(/pasa a una persona de tu equipo/i),
+    ).toBeInTheDocument();
   });
 
   // design/normative-review.md R2-01 — the regime AVALA validates (aportes de

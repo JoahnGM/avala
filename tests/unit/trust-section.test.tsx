@@ -40,7 +40,7 @@ describe("TrustSection", () => {
       screen.getByText(/contactó al proveedor #0002/i),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/entregó rut_actualizado\.pdf/i),
+      screen.getByText(/entregó planilla_2026-07\.pdf/i),
     ).toBeInTheDocument();
     expect(
       screen.getByText(/verificó RUT en DIAN · activo/i),

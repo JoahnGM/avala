@@ -20,7 +20,7 @@ describe("ContactIntake", () => {
       screen.getByRole("textbox"),
       "validar cuentas a mano es lento",
     );
-    await user.click(screen.getByRole("button", { name: /enviar/i }));
+    await user.click(screen.getByRole("button", { name: /siguiente/i }));
 
     expect(
       screen.getByText(/¿cuántas cuentas de cobro procesas al mes/i),
@@ -42,7 +42,9 @@ describe("ContactIntake", () => {
     const answers = ["proceso lento", "unas 200", "finanzas", "300 123 4567"];
     for (const answer of answers) {
       await user.type(screen.getByRole("textbox"), answer);
-      await user.click(screen.getByRole("button", { name: /enviar/i }));
+      await user.click(
+        screen.getByRole("button", { name: /siguiente|enviar/i }),
+      );
     }
 
     expect(openSpy).toHaveBeenCalledOnce();
