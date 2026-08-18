@@ -5,12 +5,19 @@ import { ChatBubble } from "@/components/ui/chat-bubble";
 
 // Conversational, AI-style contact intake — the page's primary conversion.
 // AVALA asks a few questions, then the visitor leaves their WhatsApp. No
-// backend: on submit it opens WhatsApp to AVALA with the answers prefilled, so
-// the lead actually lands in AVALA's inbox. Reuses the shared ChatBubble.
+// backend: on submit it hands the answers off to AVALA prefilled, so the lead
+// actually lands in AVALA's inbox. Reuses the shared ChatBubble.
 //
 // TODO(Joahn): replace AVALA_WHATSAPP with AVALA's real WhatsApp number
-// (country code + number, digits only) for the hand-off to actually deliver.
+// (country code + number, digits only). While it holds the placeholder, the
+// hand-off falls back to email instead of opening wa.me/57XXXXXXXXXX — an
+// invalid link that dropped every completed intake on the floor after four
+// answered questions. design/normative-review.md R2-15.
 const AVALA_WHATSAPP = "57XXXXXXXXXX";
+const AVALA_EMAIL = "hola@avala.co";
+
+/** Whether AVALA_WHATSAPP is a real number rather than the placeholder. */
+const whatsappReady = /^\d{10,15}$/.test(AVALA_WHATSAPP);
 
 type Question = {
   key: string;
@@ -49,15 +56,24 @@ const QUESTIONS: Question[] = [
 
 type Turn = { from: "avala" | "visitante"; text: string };
 
-function buildWhatsappUrl(answers: string[]) {
-  const message = [
+function buildMessage(answers: string[]) {
+  return [
     "Hola AVALA, quiero una demo.",
     `Qué quiero resolver: ${answers[0] ?? ""}`,
     `Cuentas de cobro al mes: ${answers[1] ?? ""}`,
     `Hoy los revisa: ${answers[2] ?? ""}`,
     `Mi WhatsApp: ${answers[3] ?? ""}`,
   ].join("\n");
-  return `https://wa.me/${AVALA_WHATSAPP}?text=${encodeURIComponent(message)}`;
+}
+
+/** WhatsApp when the number is configured, email otherwise — never a dead link. */
+function buildHandoffUrl(answers: string[]) {
+  const message = buildMessage(answers);
+  if (whatsappReady) {
+    return `https://wa.me/${AVALA_WHATSAPP}?text=${encodeURIComponent(message)}`;
+  }
+  const subject = encodeURIComponent("Quiero una demo de AVALA");
+  return `mailto:${AVALA_EMAIL}?subject=${subject}&body=${encodeURIComponent(message)}`;
 }
 
 export function ContactIntake() {
@@ -84,14 +100,16 @@ export function ContactIntake() {
         { from: "visitante", text: answer },
         {
           from: "avala",
-          text: "¡Listo! Te escribo por WhatsApp para coordinar tu demo.",
+          text: whatsappReady
+            ? "¡Listo! Te escribo por WhatsApp para coordinar tu demo."
+            : "¡Listo! Te abrí un correo con tus respuestas: envíalo y te escribimos para coordinar tu demo.",
         },
       ]);
       setDone(true);
       setValue("");
-      // Hand the lead to AVALA's WhatsApp with everything prefilled.
+      // Hand the lead to AVALA with everything prefilled.
       if (typeof window !== "undefined") {
-        window.open(buildWhatsappUrl(collected), "_blank", "noopener");
+        window.open(buildHandoffUrl(collected), "_blank", "noopener");
       }
       return;
     }
@@ -129,7 +147,10 @@ export function ContactIntake() {
 
         {done ? (
           <p className="border-t border-hairline px-4 py-4 font-mono text-caption text-graphite">
-            ¿No se abrió WhatsApp? Escríbenos a{" "}
+            {whatsappReady
+              ? "¿No se abrió WhatsApp?"
+              : "¿No se abrió tu correo?"}{" "}
+            Escríbenos a{" "}
             <a
               href="mailto:hola@avala.co"
               className="underline underline-offset-4 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"

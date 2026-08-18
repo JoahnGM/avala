@@ -17,6 +17,14 @@ import { Stamp } from "@/components/ui/stamp";
 // 10): UGPP fiscalizes on a multi-year window, so zero sanctions is what you'd
 // observe either way. Replaced with the sourced mechanism AVALA actually
 // accelerates.
+//
+// `value` is a figure OR the claim itself. The third stat used to read `100%`,
+// which agents/legal-brain.md §7 marks ⚠ verificar — every sanction percentage
+// there rests on secondary sources, and §2/§6 say a ⚠ verificar value is
+// treated as unavailable, not as true. What §7 does support is structural and
+// stronger: correcting before the requerimiento removes the omisión sanction
+// entirely. Restore a percentage only once §7 is read against the primary
+// text. See design/normative-review.md R2-04.
 type Stat = { label: string; value: string; note: string; source: string };
 
 const STATS: Stat[] = [
@@ -33,10 +41,10 @@ const STATS: Stat[] = [
     source: "Cifra ilustrativa",
   },
   {
-    label: "Sanción evitable",
-    value: "100%",
+    label: "Sanción por omisión",
+    value: "Se elimina",
     note: "si corriges antes del requerimiento",
-    source: "Ley 1607/2012 · art. 179",
+    source: "Ley 1607/2012 art. 179 · mod. Ley 1819/2016 art. 314",
   },
 ];
 

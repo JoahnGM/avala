@@ -32,12 +32,27 @@ describe("Hero", () => {
 
     expect(screen.getByText("72%")).toBeInTheDocument();
     expect(screen.getByText("1.400+")).toBeInTheDocument();
-    expect(screen.getByText("100%")).toBeInTheDocument();
+    expect(screen.getByText("Se elimina")).toBeInTheDocument();
 
     // design/heuristics.md #2 — provenance sits next to the figure it
     // qualifies, so there are two illustrative markers, not one caption.
     expect(screen.getAllByText("Cifra ilustrativa")).toHaveLength(2);
-    expect(screen.getByText("Ley 1607/2012 · art. 179")).toBeInTheDocument();
+    expect(
+      screen.getByText("Ley 1607/2012 art. 179 · mod. Ley 1819/2016 art. 314"),
+    ).toBeInTheDocument();
+  });
+
+  // design/normative-review.md R2-04 — every sanction percentage in
+  // agents/legal-brain.md §7 is ⚠ verificar, and §2/§6 treat such a value as
+  // unavailable. The structural claim needs no figure, and the citation has to
+  // carry the article's rewrite (N-013) or it points at superseded text.
+  it("does not publish an unverified sanction percentage", () => {
+    render(<Hero />);
+
+    expect(screen.queryByText("100%")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Ley 1607/2012 · art. 179"),
+    ).not.toBeInTheDocument();
   });
 
   // design/claims-audit.md finding 10 — "$0 sanciones UGPP" was an
