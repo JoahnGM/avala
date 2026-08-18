@@ -54,6 +54,13 @@ const config: Config = {
         bubble: "15rem",
       },
       keyframes: {
+        // The scope list advances itself, one item at a time; this is the
+        // hairline that shows how long the current item has left. Linear, no
+        // easing — it is a timer, not a flourish.
+        "scope-progress": {
+          from: { transform: "scaleX(0)" },
+          to: { transform: "scaleX(1)" },
+        },
         // Signature element (design/tokens.md): the stamp lands on the
         // document — fast scale-down with a slight overshoot, no fade-in tail.
         "stamp-land": {
@@ -63,6 +70,7 @@ const config: Config = {
         },
       },
       animation: {
+        "scope-progress": "scope-progress 5200ms linear both",
         "stamp-land": "stamp-land 240ms cubic-bezier(0.16, 1.1, 0.3, 1) both",
       },
     },

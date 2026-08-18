@@ -16,7 +16,8 @@ Round 1 · dated **2026-08-18**, against commit `4812b1c`.
 `R2-01`, `R2-02`, `R2-06`, `R2-11` and `R2-12` landed the same day inside the
 live-console rewrite — the demo had to be rebuilt anyway, and shipping a rebuilt
 demo with known-wrong suppliers would have been indefensible. `R2-07`, `R2-08`,
-`R2-09` and `R2-14` remain proposal only. Each finding carries the files it touches and
+`R2-14` remains proposal only; `R2-07`, `R2-08` and `R2-09` were stated on
+the page the same day, inside the scope list. Each finding carries the files it touches and
 the tests it moves, so the rest can be sized and approved before it is written. Findings that touch hero or value-proposition copy are marked
 **`⚑ aprobación`** per `CLAUDE.md` ("What the agent must NOT do without asking
 first").
@@ -44,9 +45,9 @@ first").
 | `R2-04` | `100%` is published twice from a `⚠ verificar` table, citing a superseded article | `hero.tsx:36`, `risk-section.tsx:25` | **Imprecise** | **Applied** |
 | `R2-05` | `R-OK-01` tells the client the base was checked — the product cannot check it | `agents/verbatim.es.md:99` | **Inaccurate** | **Blocking** |
 | `R2-06` | The lead risk is `nómina disfrazada`, the one assessment `§0` forbids | `risk-section.tsx` *(deleted)* | **Omission** | **Applied** |
-| `R2-07` | The page never says documents-exist ≠ base-correct | site-wide | **Omission** | High |
-| `R2-08` | `Cuenta de cobro lista para pagar` without the `documento soporte` the buyer owes | site-wide framing | **Omission** | High |
-| `R2-09` | ARL clase IV–V is the client's own contribution; the page never mentions it | site-wide | **Omission** | Medium |
+| `R2-07` | The page never says documents-exist ≠ base-correct | `scope-section.tsx` | **Omission** | **Applied** |
+| `R2-08` | `Cuenta de cobro lista para pagar` without the `documento soporte` the buyer owes | `scope-section.tsx` | **Omission** | **Applied** |
+| `R2-09` | ARL clase IV–V is the client's own contribution; the page never mentions it | `scope-section.tsx` | **Omission** | **Applied** (stated, not performed) |
 | `R2-10` | `PILA, RUT y DIAN` lists an authority as a document, in four places | `hero.tsx:119`, `demo-pipeline.tsx:247`, `contact-intake.tsx:38`, `layout.tsx:37` | **Imprecise** | Medium |
 | `R2-11` | `Responsabilidades verificadas` never says against what | `demo-pipeline.tsx` | **Imprecise** | **Applied** (console only) |
 | `R2-12` | The audit log is never connected to the deduction it exists to support | `trust-section.tsx` | **Opportunity** | **Applied** |
@@ -515,9 +516,26 @@ figures were self-declared illustrative), the `APROBADO` stamp now lands once
 instead of twice, `PhoneFrame` was deleted as dead code, and `surface` was added
 to the token set for the product's own artifacts.
 
-**Still open here:** `R2-07`, `R2-08`, `R2-09` (the `Alcance` block — the
-boundary the page still does not state) and `R2-14` (wiring `verbatim.es.md` to
-the code instead of copying lines by hand).
+**Then, the same day — `scope-section.tsx`.** A second reference (Cifrato)
+prompted the pattern that closed the rest: five items, one open, a panel that
+redraws for the open item. Its closing item is the `Alcance` block these
+findings were waiting for.
+
+- **`R2-07`** — "No recalcula el IBC — que es lo que la UGPP fiscaliza."
+- **`R2-08`** — "Si el proveedor no factura, lo genera tu empresa · Res. DIAN
+  000165/2023."
+- **`R2-09`** — "En contratos de más de un mes ese aporte lo paga tu empresa."
+  Stated as a boundary, not as a capability: the product still does not resolve
+  the risk class, so the copy tells the client whose contribution it is and
+  stops there.
+
+`manifesto-section.tsx` was folded in as that item's struck-through list and
+deleted — one section instead of two, and the list now ends on the boundary
+rather than on the pitch.
+
+**Still open here:** `R2-14` (wiring `verbatim.es.md` to the code instead of
+copying lines by hand), and the product gaps themselves — `claims-audit`
+findings 11–13 are stated on the page now, not closed.
 
 ---
 
