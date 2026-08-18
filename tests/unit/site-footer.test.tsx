@@ -24,6 +24,22 @@ describe("SiteFooter", () => {
     expect(link).toHaveAttribute("href", "mailto:hola@avala.co");
   });
 
+  // design/normative-review.md R2-03 — the same claims-audit finding 2 that was
+  // fixed in trust-section.tsx survived here: UGPP fiscalizes and exposes no
+  // service to query a third party, and a planilla is not a public source.
+  // Guarded in both places now, so the correction can't come back on one side.
+  it("names the real sources and does not present UGPP as one", () => {
+    render(<SiteFooter />);
+
+    expect(
+      screen.getByText(/planilla del operador pila autorizado/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/consulta del rut en la dian/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/fuentes públicas/i)).not.toBeInTheDocument();
+  });
+
   it("renders the copyright line", () => {
     render(<SiteFooter />);
 

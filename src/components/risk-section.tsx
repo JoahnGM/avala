@@ -7,11 +7,20 @@ import { SourceNote } from "@/components/ui/source-note";
 // carries its own provenance per design/heuristics.md #2: a norm ID from
 // agents/legal-brain.md §1, or an in-place illustrative marker. Flag any copy
 // change here explicitly in the PR.
+//
+// The UGPP front no longer leads with `100%`: agents/legal-brain.md §7 marks
+// every sanction percentage ⚠ verificar (secondary sources only), and §2/§6
+// treat such a value as unavailable. What is sourced is who the UGPP charges —
+// the client, not the supplier (N-012, arts. 178-180) — so that is what the
+// front states. design/normative-review.md R2-04.
 
 type Frente = {
   /** Who acts / the front — mono eyebrow (user-facing). */
   frente: string;
-  /** Headline number. Must be sourced or marked illustrative via `source`. */
+  /**
+   * Headline figure — or, where no verified figure exists, the claim itself.
+   * Either way it must be sourced or marked illustrative via `source`.
+   */
   stat: string;
   /** Provenance of `stat`, rendered directly beneath it (user-facing). */
   source: string;
@@ -22,10 +31,10 @@ type Frente = {
 const FRENTES: Frente[] = [
   {
     frente: "UGPP",
-    stat: "100%",
-    source: "Ley 1607/2012 · art. 179",
+    stat: "A ti",
+    source: "Ley 1607/2012 · arts. 178-180",
     title: "Nómina disfrazada",
-    body: "Si la UGPP considera que tu proveedor es un empleado encubierto, te reclama los aportes y te sanciona hasta por el 100% de lo que no se liquidó. El costo lo asumes tú, no él.",
+    body: "Si la UGPP considera que tu proveedor es un empleado encubierto, te reclama a ti los aportes que no se liquidaron, más la sanción que fije el régimen. El costo lo asumes tú, no él.",
   },
   {
     frente: "DIAN",

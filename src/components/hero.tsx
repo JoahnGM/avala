@@ -3,9 +3,11 @@ import { SourceNote } from "@/components/ui/source-note";
 import { Stamp } from "@/components/ui/stamp";
 
 // §01 hero. Headline iterated 2026-07-23 with Joahn's explicit approval:
-// leads with the concrete manual-review pain (UX-review P1) while keeping the
-// broad "proveedores" positioning and the UGPP hook (red accent) in the second
-// beat. Two-column layout (copy + a compact expediente preview) so the hero
+// leads with the concrete manual-review pain (UX-review P1) with the UGPP hook
+// (red accent) in the second beat. Object corrected 2026-08-18 at Joahn's
+// direction: what the team reviews by hand is the cuenta de cobro, not the
+// proveedor — the invoice is the unit of work, and the page's title, demo and
+// CTA were already built on it. Two-column layout (copy + a compact expediente preview) so the hero
 // fills the width instead of floating as a narrow text column; tighter vertical
 // padding. Stat figures are ILLUSTRATIVE and flagged in the UI. Flag any
 // further copy change here explicitly in the PR.
@@ -17,6 +19,14 @@ import { Stamp } from "@/components/ui/stamp";
 // 10): UGPP fiscalizes on a multi-year window, so zero sanctions is what you'd
 // observe either way. Replaced with the sourced mechanism AVALA actually
 // accelerates.
+//
+// `value` is a figure OR the claim itself. The third stat used to read `100%`,
+// which agents/legal-brain.md §7 marks ⚠ verificar — every sanction percentage
+// there rests on secondary sources, and §2/§6 say a ⚠ verificar value is
+// treated as unavailable, not as true. What §7 does support is structural and
+// stronger: correcting before the requerimiento removes the omisión sanction
+// entirely. Restore a percentage only once §7 is read against the primary
+// text. See design/normative-review.md R2-04.
 type Stat = { label: string; value: string; note: string; source: string };
 
 const STATS: Stat[] = [
@@ -33,10 +43,10 @@ const STATS: Stat[] = [
     source: "Cifra ilustrativa",
   },
   {
-    label: "Sanción evitable",
-    value: "100%",
+    label: "Sanción por omisión",
+    value: "Se elimina",
     note: "si corriges antes del requerimiento",
-    source: "Ley 1607/2012 · art. 179",
+    source: "Ley 1607/2012 art. 179 · mod. Ley 1819/2016 art. 314",
   },
 ];
 
@@ -108,7 +118,7 @@ export function Hero() {
           <div>
             <h1 className="font-display uppercase">
               <span className="block text-display-md md:text-display-lg">
-                Deja de revisar proveedores a mano
+                Deja de revisar cuentas de cobro a mano
               </span>
               <span className="mt-2 block text-display-sm md:text-display-md">
                 y de temerle a la <span className="text-stamp">UGPP</span>.
