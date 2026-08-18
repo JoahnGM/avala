@@ -3,9 +3,11 @@ import { SourceNote } from "@/components/ui/source-note";
 import { Stamp } from "@/components/ui/stamp";
 
 // §01 hero. Headline iterated 2026-07-23 with Joahn's explicit approval:
-// leads with the concrete manual-review pain (UX-review P1) while keeping the
-// broad "proveedores" positioning and the UGPP hook (red accent) in the second
-// beat. Two-column layout (copy + a compact expediente preview) so the hero
+// leads with the concrete manual-review pain (UX-review P1) with the UGPP hook
+// (red accent) in the second beat. Object corrected 2026-08-18 at Joahn's
+// direction: what the team reviews by hand is the cuenta de cobro, not the
+// proveedor — the invoice is the unit of work, and the page's title, demo and
+// CTA were already built on it. Two-column layout (copy + a compact expediente preview) so the hero
 // fills the width instead of floating as a narrow text column; tighter vertical
 // padding. Stat figures are ILLUSTRATIVE and flagged in the UI. Flag any
 // further copy change here explicitly in the PR.
@@ -116,7 +118,7 @@ export function Hero() {
           <div>
             <h1 className="font-display uppercase">
               <span className="block text-display-md md:text-display-lg">
-                Deja de revisar proveedores a mano
+                Deja de revisar cuentas de cobro a mano
               </span>
               <span className="mt-2 block text-display-sm md:text-display-md">
                 y de temerle a la <span className="text-stamp">UGPP</span>.
