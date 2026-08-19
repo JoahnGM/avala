@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { track } from "@/lib/analytics";
 import { ChatBubble } from "@/components/ui/chat-bubble";
 import { SectionLabel } from "@/components/ui/section-label";
 import { Stamp } from "@/components/ui/stamp";
@@ -149,10 +150,26 @@ export function DemoPipeline() {
   function selectCase(id: CaseId) {
     setCaseId(id);
     setStep(0);
+    track("demo_case_select", { case_id: id });
+  }
+
+  // Whether visitors actually walk the demo is the signal that tells us if the
+  // live-mechanism proof lands, so every step move is measured.
+  function goToStep(next: number) {
+    setStep(next);
+    track("demo_step", { case_id: caseId, step_index: next });
+    if (next === stages.length - 1) {
+      track("demo_completed", { case_id: caseId });
+    }
+  }
+
+  function restart() {
+    setStep(0);
+    track("demo_restart", { case_id: caseId });
   }
 
   return (
-    <section className="border-t border-hairline">
+    <section id="demo" className="border-t border-hairline">
       <div className="mx-auto max-w-5xl px-6 py-16 md:py-20">
         <div className="flex items-center gap-4">
           {/* claims-audit.md finding 17 — the walkthrough uses fabricated
@@ -321,7 +338,7 @@ export function DemoPipeline() {
             {step > 0 ? (
               <button
                 type="button"
-                onClick={() => setStep((s) => s - 1)}
+                onClick={() => goToStep(step - 1)}
                 className="border border-hairline px-4 py-2 font-mono text-caption uppercase tracking-widest text-graphite hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
               >
                 ← Paso anterior
@@ -331,7 +348,7 @@ export function DemoPipeline() {
             {isLast ? (
               <button
                 type="button"
-                onClick={() => setStep(0)}
+                onClick={restart}
                 className="border border-hairline px-4 py-2 font-mono text-caption uppercase tracking-widest text-graphite hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
               >
                 Ver de nuevo
@@ -339,7 +356,7 @@ export function DemoPipeline() {
             ) : (
               <button
                 type="button"
-                onClick={() => setStep((s) => s + 1)}
+                onClick={() => goToStep(step + 1)}
                 className="bg-stamp px-5 py-2.5 font-mono text-data uppercase tracking-widest text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
               >
                 Siguiente paso →

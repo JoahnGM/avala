@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChatBubble } from "@/components/ui/chat-bubble";
+import { track } from "@/lib/analytics";
 
 // Conversational, AI-style contact intake — the page's primary conversion.
 // AVALA asks a few questions, then the visitor leaves their WhatsApp. No
@@ -77,6 +78,12 @@ export function ContactIntake() {
     const collected = [...answers, answer];
     const isLast = step === QUESTIONS.length - 1;
 
+    // Funnel shape only — the question key, never the answer. Which question
+    // loses people is the whole point; what they typed is none of GA4's
+    // business (see src/lib/analytics.ts).
+    if (step === 0) track("intake_start");
+    track("intake_step", { step_index: step, question_key: QUESTIONS[step].key });
+
     if (isLast) {
       setAnswers(collected);
       setTurns((prev) => [
@@ -89,8 +96,10 @@ export function ContactIntake() {
       ]);
       setDone(true);
       setValue("");
+      track("intake_complete");
       // Hand the lead to AVALA's WhatsApp with everything prefilled.
       if (typeof window !== "undefined") {
+        track("whatsapp_handoff");
         window.open(buildWhatsappUrl(collected), "_blank", "noopener");
       }
       return;
