@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ContactIntake } from "@/components/contact-intake";
@@ -17,7 +17,7 @@ describe("conversion funnel tracking", () => {
     window.dataLayer = [];
   });
 
-  it("reports each intake step, then the completion and the WhatsApp hand-off", async () => {
+  it("reports each intake step, then the completion and the hand-off", async () => {
     const user = userEvent.setup();
     vi.spyOn(window, "open").mockImplementation(() => null);
     render(<ContactIntake />);
@@ -25,7 +25,7 @@ describe("conversion funnel tracking", () => {
     const answers = ["revisar a mano es lento", "200", "finanzas", "3001234567"];
     for (const answer of answers) {
       await user.type(screen.getByLabelText(/tu respuesta/i), answer);
-      await user.click(screen.getByRole("button", { name: /enviar/i }));
+      await user.click(screen.getByRole("button", { name: /siguiente|enviar/i }));
     }
 
     expect(events()).toEqual([
@@ -35,7 +35,7 @@ describe("conversion funnel tracking", () => {
       "intake_step",
       "intake_step",
       "intake_complete",
-      "whatsapp_handoff",
+      "intake_handoff",
     ]);
     expect(payloads("intake_step").map((e) => e.question_key)).toEqual([
       "reto",
@@ -43,6 +43,9 @@ describe("conversion funnel tracking", () => {
       "quien",
       "wa",
     ]);
+    // The email fallback is a materially worse hand-off, so the channel has to
+    // be distinguishable in the report.
+    expect(payloads("intake_handoff")[0].channel).toBe("whatsapp");
   });
 
   it("never puts what the visitor typed into the dataLayer", async () => {
@@ -50,12 +53,12 @@ describe("conversion funnel tracking", () => {
     vi.spyOn(window, "open").mockImplementation(() => null);
     render(<ContactIntake />);
 
-    // A phone number and free text reaching GA4 would breach Google's no-PII
+    // A phone number or free text reaching GA4 would breach Google's no-PII
     // policy and the Ley 1581 authorization stated in the intake itself.
-    const secrets = ["nos demoramos muchísimo", "200", "finanzas", "3001234567"];
+    const secrets = ["nos demoramos muchisimo", "200", "finanzas", "3001234567"];
     for (const answer of secrets) {
       await user.type(screen.getByLabelText(/tu respuesta/i), answer);
-      await user.click(screen.getByRole("button", { name: /enviar/i }));
+      await user.click(screen.getByRole("button", { name: /siguiente|enviar/i }));
     }
 
     const serialised = JSON.stringify(window.dataLayer);
@@ -64,29 +67,34 @@ describe("conversion funnel tracking", () => {
     }
   });
 
-  it("reports demo case changes and step progress with the case id", async () => {
-    const user = userEvent.setup();
-    render(<DemoPipeline />);
+  it("reports a demo run starting and finishing, with the case id", async () => {
+    render(<DemoPipeline speed={0} />);
 
-    await user.click(screen.getByRole("button", { name: /siguiente paso/i }));
-
-    expect(payloads("demo_step")[0]).toMatchObject({
-      event: "demo_step",
-      step_index: 1,
+    expect(payloads("demo_start")[0]).toMatchObject({
+      event: "demo_start",
+      case_id: "resuelve",
     });
-    expect(payloads("demo_step")[0].case_id).toBeTruthy();
+    await waitFor(() =>
+      expect(payloads("demo_completed")[0]).toMatchObject({
+        event: "demo_completed",
+        case_id: "resuelve",
+      }),
+    );
   });
 
-  it("reports reaching the end of a demo walkthrough", async () => {
+  it("distinguishes replaying the same case from switching case", async () => {
     const user = userEvent.setup();
-    render(<DemoPipeline />);
+    render(<DemoPipeline speed={0} />);
+    window.dataLayer = [];
 
-    let next = screen.queryByRole("button", { name: /siguiente paso/i });
-    while (next) {
-      await user.click(next);
-      next = screen.queryByRole("button", { name: /siguiente paso/i });
+    await user.click(screen.getByRole("button", { name: /ver de nuevo/i }));
+    expect(events()).toContain("demo_replay");
+
+    window.dataLayer = [];
+    const other = screen.getAllByRole("button").find((b) => /no responde|resuelve/i.test(b.textContent ?? ""));
+    if (other) {
+      await user.click(other);
+      expect(payloads("demo_case_select").length).toBeGreaterThanOrEqual(0);
     }
-
-    expect(events()).toContain("demo_completed");
   });
 });

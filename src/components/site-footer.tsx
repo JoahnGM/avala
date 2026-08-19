@@ -1,5 +1,11 @@
 // Site footer — dossier-style closing block. Copy is user-facing (Spanish);
 // flag any change to the legal disclaimer explicitly in the PR.
+//
+// The disclaimer used to name UGPP as one of the "fuentes públicas" the
+// validations rest on — the same error design/claims-audit.md finding 2 fixed
+// in trust-section.tsx and left standing here. UGPP fiscalizes and exposes no
+// service to query a third party, and a planilla is not public: it reaches
+// AVALA through the authorised operador. design/normative-review.md R2-03.
 
 export function SiteFooter() {
   return (
@@ -18,11 +24,11 @@ export function SiteFooter() {
           </p>
         </div>
 
-        <p className="mt-8 max-w-2xl text-caption text-graphite">
+        <p className="mt-8 max-w-2xl text-caption text-evidence">
           AVALA no sustituye asesoría tributaria ni contable. Las validaciones
-          se apoyan en las fuentes públicas de la DIAN, la UGPP y los operadores
-          PILA autorizados en Colombia. La aprobación final de cada pago la
-          realiza el cliente.
+          se apoyan en la planilla del operador PILA autorizado y en la consulta
+          del RUT en la DIAN. Los criterios de fiscalización los fija la UGPP.
+          La aprobación final de cada pago la realiza el cliente.
         </p>
 
         <p className="mt-8 font-mono text-micro text-graphite">

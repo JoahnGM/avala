@@ -1,135 +1,120 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { DemoPipeline } from "@/components/demo-pipeline";
 
-function next() {
-  fireEvent.click(screen.getByRole("button", { name: /siguiente paso/i }));
-}
+// `speed={0}` collapses every pause so the console resolves immediately; the
+// sequence and its content are what these assert, not the cadence.
+const runs = () => render(<DemoPipeline speed={0} />);
 
-describe("DemoPipeline (full-arc walkthrough)", () => {
-  it("renders the teaching heading and starts when the invoice arrives", () => {
-    render(<DemoPipeline />);
+describe("DemoPipeline", () => {
+  // P2-6 — the marker moved out of the section eyebrow to a caption under the
+  // frame: announcing the simulation before the payoff disarmed the strongest
+  // piece on the page. It still has to be stated (claims-audit finding 17).
+  it("marks the walkthrough as simulated, below the frame", () => {
+    runs();
 
     expect(
-      screen.getByRole("heading", {
-        name: /de la cuenta de cobro al pago/i,
-      }),
+      screen.getByText(/ejemplo con datos anonimizados/i),
     ).toBeInTheDocument();
-    expect(screen.getByText("cuenta_0002.pdf")).toBeInTheDocument();
   });
 
-  it("walks receive → review → correction → ready for the RUT case", () => {
-    render(<DemoPipeline />); // defaults to the "Falta el RUT" case
+  // P1-2 — the biggest adoption objection: who writes to my supplier, from
+  // what number, and what happens when they answer something else.
+  it("answers who writes to the supplier, from where, and the human fallback", () => {
+    runs();
 
-    // 01 llega → 02 revisa
-    next();
+    expect(screen.getByText(/nunca dice ser una persona/i)).toBeInTheDocument();
+    expect(screen.getByText("+57 301 244 1488")).toBeInTheDocument();
     expect(
-      screen.getByText(/avala revisa los documentos: pila, rut y dian/i),
+      screen.getByText(/pasa a una persona de tu equipo/i),
     ).toBeInTheDocument();
-    expect(screen.getByText(/rut desactualizado/i)).toBeInTheDocument();
+  });
 
-    // 03 corrige — the chat with the supplier plays inside the demo
-    next();
-    const chat = screen.getByRole("list", {
+  // design/normative-review.md R2-01 — the regime AVALA validates (aportes de
+  // independientes) applies to personas naturales. A S.A.S. is outside
+  // agents/legal-brain.md §0 entirely, and cannot invoice by cuenta de cobro.
+  it("uses a persona natural, never a S.A.S., and states the contributor type", () => {
+    runs();
+
+    expect(screen.getByText("Julián Pardo Meneses")).toBeInTheDocument();
+    expect(screen.queryByText(/S\.A\.S\./)).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/prestación de servicios personales/i),
+    ).toBeInTheDocument();
+  });
+
+  it("names the rule behind every check", () => {
+    runs();
+
+    expect(screen.getByText("V-PILA-01")).toBeInTheDocument();
+    expect(screen.getByText("V-RUT-01")).toBeInTheDocument();
+    expect(screen.getByText("V-RUT-02")).toBeInTheDocument();
+  });
+
+  // The console runs itself — no click advances it. That is the point of the
+  // rewrite: the visitor watches the product work.
+  it("resolves on its own and lands the report the client receives", async () => {
+    runs();
+
+    expect(
+      await screen.findByText("reporte_cuenta_0002.pdf"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("APROBADO")).toBeInTheDocument();
+    expect(
+      screen.getByText(/planilla del último período cerrado, pagada/i),
+    ).toBeInTheDocument();
+  });
+
+  it("opens the WhatsApp correction inside the same console", async () => {
+    runs();
+
+    const chat = await screen.findByRole("list", {
       name: /conversación entre avala y el proveedor/i,
     });
-    expect(chat).toBeInTheDocument();
-    expect(screen.getByText("rut_actualizado.pdf")).toBeInTheDocument();
-
-    // design/claims-audit.md finding 3 — receiving the supplier's attachment is
-    // not a DIAN confirmation. The agent says what it actually did.
     expect(
-      screen.getByText(/consulté el estado de tu rut en el portal de la dian/i),
+      await within(chat).findByText(/me falta tu planilla de aportes/i),
     ).toBeInTheDocument();
+    // the supplier's reply lands later in the same thread, not in a new one
     expect(
-      screen.queryByText(/confirmado con la dian/i),
-    ).not.toBeInTheDocument();
-
-    // 04 lista → APROBADO + we-notify-you-for-payment
-    next();
-    expect(screen.getByText("APROBADO")).toBeInTheDocument();
-    // design/claims-audit.md finding 14 — the approval stays with the client.
-    expect(
-      screen.getByText(/quedó lista\. la aprobación la das tú/i),
+      await within(chat).findByText("planilla_2026-07.pdf"),
     ).toBeInTheDocument();
-    expect(screen.queryByText(/tú solo pagas/i)).not.toBeInTheDocument();
   });
 
-  // design/claims-audit.md finding 17 — fabricated suppliers and an APROBADO
-  // stamp have to be labelled as a simulation.
-  it("labels itself as a simulated demo", () => {
-    render(<DemoPipeline />);
+  // claims-audit.md finding 14 — the approval is the client's, so the demo
+  // cannot end on "we paid it for you".
+  it("leaves the approval with the client", async () => {
+    runs();
 
-    expect(screen.getByText(/demo simulada/i)).toBeInTheDocument();
+    expect(await screen.findByText(/la aprobación la das tú/i)).toBeInTheDocument();
   });
 
-  // design/claims-audit.md finding 5 — no disguised-employment check.
-  it("does not claim a disguised-employment assessment", () => {
-    render(<DemoPipeline />);
+  // The UX review requires every fork to have a defined end state. The branch
+  // is still reachable — it just no longer asks the visitor to choose before
+  // the demo has shown them anything.
+  it("reaches the unresolved ending, which stamps REVISAR and hands it over", async () => {
+    const user = userEvent.setup();
+    runs();
 
-    next(); // revisa — the check list renders here
-
-    expect(screen.queryByText(/indicios de nómina/i)).not.toBeInTheDocument();
-  });
-
-  // UX review 2026-07-28, P5 — every fork needs a defined end state and an
-  // explicit next action. This is the only branch that does not end APROBADO.
-  it("ends the no-response case in REVISAR with an explicit next action", () => {
-    render(<DemoPipeline />);
-
-    fireEvent.click(
+    await user.click(
       screen.getByRole("button", { name: /el proveedor no responde/i }),
     );
-    next(); // revisa
-    expect(
-      screen.getByText(/pila · último período sin pagar/i),
-    ).toBeInTheDocument();
 
-    next(); // corrige — AVALA writes, supplier stays silent
+    expect(await screen.findByText("REVISAR")).toBeInTheDocument();
+    expect(screen.getByText("Marcela Ríos Gaitán")).toBeInTheDocument();
     expect(
-      screen.getByText(/sin respuesta del proveedor/i),
+      screen.getByText(/la decisión de insistir, devolverla o pagarla es tuya/i),
     ).toBeInTheDocument();
-
-    next(); // detenida
-    expect(screen.getByText("REVISAR")).toBeInTheDocument();
-    expect(screen.queryByText("APROBADO")).not.toBeInTheDocument();
-    expect(
-      screen.getByText(
-        /la decisión de insistir, devolverla o pagarla es tuya/i,
-      ),
-    ).toBeInTheDocument();
+    expect(screen.queryByText("reporte_cuenta_0002.pdf")).not.toBeInTheDocument();
   });
 
-  // UX review 2026-07-28, P5 — no one-way flows.
-  it("offers a way back once past the first step", () => {
-    render(<DemoPipeline />);
+  // design/claims-audit.md findings 1 and 5 — the period label can never name
+  // the current month (mes vencido), and no disguised-employment check exists.
+  it("does not reintroduce an impossible period or a nómina assessment", () => {
+    runs();
 
-    expect(
-      screen.queryByRole("button", { name: /paso anterior/i }),
-    ).not.toBeInTheDocument();
-
-    next();
-    const back = screen.getByRole("button", { name: /paso anterior/i });
-    fireEvent.click(back);
-
-    expect(screen.getByText("cuenta_0002.pdf")).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: /paso anterior/i }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("skips the correction step for a clean invoice", () => {
-    render(<DemoPipeline />);
-
-    fireEvent.click(screen.getByRole("button", { name: /cuenta al día/i }));
-    next(); // revisa
-    next(); // lista (no corrige step)
-
-    expect(screen.getByText("APROBADO")).toBeInTheDocument();
-    expect(
-      screen.queryByRole("list", {
-        name: /conversación entre avala y el proveedor/i,
-      }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByText(/último período cerrado/i)).toBeInTheDocument();
+    expect(screen.queryByText(/PILA \w{3}-\d{4}/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/indicios de nómina/i)).not.toBeInTheDocument();
   });
 });

@@ -1,13 +1,17 @@
+// The bar floats: the CTA is the only conversion above the fold and the page is
+// five sections long, so it has to survive the scroll. `paper` stays opaque —
+// a translucent bar over the inverted §04 would put graphite text on ink.
 export function SiteHeader() {
   return (
-    <header className="border-b border-hairline bg-paper">
+    <header className="sticky top-0 z-50 border-b border-hairline bg-paper">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
         <div className="flex items-center gap-3">
           <span className="font-display uppercase text-ink text-display-sm">
             AVALA
           </span>
+          {/* P2-5 — "Proveedores · Colombia" read as a site FOR suppliers. */}
           <span className="hidden font-mono text-caption uppercase tracking-widest text-graphite sm:block">
-            Proveedores · Colombia
+            Pagos a proveedores · Colombia
           </span>
         </div>
         <nav aria-label="Acciones principales">

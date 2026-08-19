@@ -20,7 +20,7 @@ describe("ContactIntake", () => {
       screen.getByRole("textbox"),
       "validar cuentas a mano es lento",
     );
-    await user.click(screen.getByRole("button", { name: /enviar/i }));
+    await user.click(screen.getByRole("button", { name: /siguiente/i }));
 
     expect(
       screen.getByText(/¿cuántas cuentas de cobro procesas al mes/i),
@@ -31,7 +31,10 @@ describe("ContactIntake", () => {
     ).toBeInTheDocument();
   });
 
-  it("hands the lead to WhatsApp after the last question", async () => {
+  // design/normative-review.md R2-15 — the hand-off must reach AVALA with the
+  // answers attached. It used to open wa.me/57XXXXXXXXXX, losing the lead after
+  // four answered questions, so the placeholder is asserted against directly.
+  it("hands the lead to WhatsApp after the last question, never to a dead link", async () => {
     const openSpy = vi.spyOn(window, "open").mockImplementation(() => null);
     const user = userEvent.setup();
     render(<ContactIntake />);
@@ -39,14 +42,16 @@ describe("ContactIntake", () => {
     const answers = ["proceso lento", "unas 200", "finanzas", "300 123 4567"];
     for (const answer of answers) {
       await user.type(screen.getByRole("textbox"), answer);
-      await user.click(screen.getByRole("button", { name: /enviar/i }));
+      await user.click(
+        screen.getByRole("button", { name: /siguiente|enviar/i }),
+      );
     }
 
     expect(openSpy).toHaveBeenCalledOnce();
-    expect(openSpy.mock.calls[0][0]).toContain("wa.me");
-    expect(openSpy.mock.calls[0][0]).toContain(
-      encodeURIComponent("300 123 4567"),
-    );
+    const url = String(openSpy.mock.calls[0][0]);
+    expect(url).not.toContain("XXXXXXXXXX");
+    expect(url).toContain("wa.me/573012441488");
+    expect(url).toContain(encodeURIComponent("300 123 4567"));
     expect(screen.getByText(/te escribo por whatsapp/i)).toBeInTheDocument();
 
     openSpy.mockRestore();

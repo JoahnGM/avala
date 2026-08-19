@@ -40,7 +40,7 @@ describe("TrustSection", () => {
       screen.getByText(/contactó al proveedor #0002/i),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/entregó rut_actualizado\.pdf/i),
+      screen.getByText(/entregó planilla_2026-07\.pdf/i),
     ).toBeInTheDocument();
     expect(
       screen.getByText(/verificó RUT en DIAN · activo/i),
@@ -56,6 +56,18 @@ describe("TrustSection", () => {
     render(<TrustSection />);
 
     expect(screen.queryByText(/act 7410/i)).not.toBeInTheDocument();
+  });
+
+  // design/normative-review.md R2-12 — under N-009/N-010 the deduction is
+  // conditioned on the client's own documented verification, so the audit log
+  // is not generic diligence: it is the evidence. Saying so is the difference
+  // between a trust badge and a reason to buy.
+  it("names what the audit record is for", () => {
+    render(<TrustSection />);
+
+    expect(
+      screen.getByText(/condiciona la deducción del pago/i),
+    ).toBeInTheDocument();
   });
 
   // design/claims-audit.md finding 2 — UGPP fiscalizes; it is not a service you
