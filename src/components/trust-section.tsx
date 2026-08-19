@@ -27,7 +27,7 @@ const AUDIT_LOG: LogLine[] = [
 
 export function TrustSection() {
   return (
-    <section className="border-t border-hairline bg-ink text-paper">
+    <section id="confianza" className="border-t border-hairline bg-ink text-paper">
       <div className="mx-auto max-w-5xl px-6 py-16 md:py-24">
         <div className="flex items-center gap-4">
           <p className="font-mono text-caption uppercase tracking-widest text-hairline">

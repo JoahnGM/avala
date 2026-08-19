@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ChatBubble } from "@/components/ui/chat-bubble";
+import { track } from "@/lib/analytics";
 import { SectionLabel } from "@/components/ui/section-label";
 import { Stamp } from "@/components/ui/stamp";
 
@@ -253,9 +254,25 @@ export function DemoPipeline({ speed = 1 }: DemoPipelineProps) {
     return () => window.clearTimeout(timer);
   }, [phase, running, armed, steps, speed]);
 
+  // Whether visitors reach the console and let it finish is the signal that
+  // tells us if the live-mechanism proof lands. The console advances itself, so
+  // a run — not a step — is the unit worth measuring.
+  useEffect(() => {
+    if (armed && phase === 0) track("demo_start", { case_id: caseId });
+  }, [armed, phase, caseId]);
+
+  useEffect(() => {
+    if (armed && phase === steps.length) {
+      track("demo_completed", { case_id: caseId });
+    }
+  }, [armed, phase, steps.length, caseId]);
+
   function replay(next: CaseId) {
     setCaseId(next);
     setPhase(0);
+    track(next === caseId ? "demo_replay" : "demo_case_select", {
+      case_id: next,
+    });
   }
 
   const applied = steps.slice(0, phase);
@@ -274,7 +291,7 @@ export function DemoPipeline({ speed = 1 }: DemoPipelineProps) {
   const other: CaseId = caseId === "resuelve" ? "sinRespuesta" : "resuelve";
 
   return (
-    <section className="border-t border-hairline">
+    <section id="demo" className="border-t border-hairline">
       <div className="mx-auto max-w-5xl px-6 py-16 md:py-20">
         <div className="flex items-center gap-4">
           <SectionLabel as="p">02 · Cómo funciona</SectionLabel>

@@ -19,7 +19,7 @@ import { SectionLabel } from "@/components/ui/section-label";
 
 export function Hero() {
   return (
-    <section>
+    <section id="problema">
       <div className="mx-auto max-w-5xl px-6 pt-8 pb-16 md:pt-12 md:pb-20">
         <div className="flex items-center gap-4">
           <SectionLabel as="p">01 · El problema</SectionLabel>

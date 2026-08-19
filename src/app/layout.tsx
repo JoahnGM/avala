@@ -5,6 +5,8 @@ import {
   IBM_Plex_Sans,
   Special_Elite,
 } from "next/font/google";
+import Script from "next/script";
+import { GTM_ID, gtmSnippet } from "@/lib/gtm";
 import "./globals.css";
 
 const archivoBlack = Archivo_Black({
@@ -46,6 +48,11 @@ export default function RootLayout({
       className={`${archivoBlack.variable} ${plexSans.variable} ${plexMono.variable} ${specialElite.variable}`}
     >
       <body className="bg-paper font-body text-body text-ink antialiased">
+        {GTM_ID ? (
+          <Script id="gtm-loader" strategy="afterInteractive">
+            {gtmSnippet(GTM_ID)}
+          </Script>
+        ) : null}
         {children}
       </body>
     </html>
