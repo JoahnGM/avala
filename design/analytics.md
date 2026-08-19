@@ -10,11 +10,20 @@ this exists to answer: **where do visitors stop believing us?**
 | GA4 property | `AVALA Landing` | analytics.google.com |
 | GA4 measurement ID | `G-50MQK1Y1VL` | pasted into GTM only, never into this repo |
 | GTM container | `avala.lat` (Web) | tagmanager.google.com |
-| GTM container ID | `GTM-K5TWMVBC` (via `NEXT_PUBLIC_GTM_ID`) | Vercel env var, Production only |
+| GTM container ID | `GTM-K5TWMVBC` | `src/lib/gtm.ts` |
 
-The container ID is an env var so preview builds stay silent and never pollute
-production data. The site is a static export, so **the ID is inlined at build
-time — changing it in Vercel requires a redeploy.**
+The container ID lives in the repo rather than in an env var: it is public by
+design — every visitor's browser needs it to fetch the container, so it ships in
+the HTML either way — and keeping it in code means a deploy needs no dashboard
+step. `NEXT_PUBLIC_GTM_ID` still overrides it, and setting that to an empty
+string is the kill switch.
+
+Preview builds stay out of the data through a **runtime host guard**
+(`MEASURED_HOSTS`): the loader returns early unless the hostname is `avala.lat`
+or `www.avala.lat`. The check has to be at runtime because a static export has
+no build-time notion of the host it will be served from. At MVP volumes a
+handful of our own preview visits is enough to move every rate below, so this
+guard is load-bearing, not hygiene.
 
 ## Division of labour
 
