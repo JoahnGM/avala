@@ -12,9 +12,12 @@ made of, and asks a different question:
 
 Round 1 · dated **2026-08-18**, against commit `4812b1c`.
 
-**Status.** `R2-03`, `R2-04` and `R2-15` were applied on **2026-08-18** at the
-user's instruction — the tranche that is blocking and needs no design work.
-Everything else is proposal only. Each finding carries the files it touches and
+**Status.** `R2-03`, `R2-04` and `R2-15` were applied on **2026-08-18**, and
+`R2-01`, `R2-02`, `R2-06`, `R2-11` and `R2-12` landed the same day inside the
+live-console rewrite — the demo had to be rebuilt anyway, and shipping a rebuilt
+demo with known-wrong suppliers would have been indefensible. `R2-07`, `R2-08`,
+`R2-14` remains proposal only; `R2-07`, `R2-08` and `R2-09` were stated on
+the page the same day, inside the scope list. Each finding carries the files it touches and
 the tests it moves, so the rest can be sized and approved before it is written. Findings that touch hero or value-proposition copy are marked
 **`⚑ aprobación`** per `CLAUDE.md` ("What the agent must NOT do without asking
 first").
@@ -36,18 +39,18 @@ first").
 
 | # | Finding | Where | Verdict | Severity |
 |---|---|---|---|---|
-| `R2-01` | Every demo supplier is an `S.A.S.` — a persona jurídica, outside the brain's entire scope | `hero.tsx:64`, `demo-pipeline.tsx:58-120` | **Out of scope** | **Blocking** |
-| `R2-02` | The "Falta el RUT" case resolves a different rule than the one it fails | `demo-pipeline.tsx:73-104` | **Contradiction** | **Blocking** |
+| `R2-01` | Every demo supplier is an `S.A.S.` — a persona jurídica, outside the brain's entire scope | `hero.tsx`, `demo-pipeline.tsx` | **Out of scope** | **Applied** |
+| `R2-02` | The "Falta el RUT" case resolves a different rule than the one it fails | `demo-pipeline.tsx` | **Contradiction** | **Applied** |
 | `R2-03` | The footer still lists UGPP as a source, and calls the planilla public | `site-footer.tsx:23` | **Inaccurate** | **Applied** |
 | `R2-04` | `100%` is published twice from a `⚠ verificar` table, citing a superseded article | `hero.tsx:36`, `risk-section.tsx:25` | **Imprecise** | **Applied** |
 | `R2-05` | `R-OK-01` tells the client the base was checked — the product cannot check it | `agents/verbatim.es.md:99` | **Inaccurate** | **Blocking** |
-| `R2-06` | The lead risk is `nómina disfrazada`, the one assessment `§0` forbids | `risk-section.tsx:24-31` | **Omission** | High |
-| `R2-07` | The page never says documents-exist ≠ base-correct | site-wide | **Omission** | High |
-| `R2-08` | `Cuenta de cobro lista para pagar` without the `documento soporte` the buyer owes | site-wide framing | **Omission** | High |
-| `R2-09` | ARL clase IV–V is the client's own contribution; the page never mentions it | site-wide | **Omission** | Medium |
+| `R2-06` | The lead risk is `nómina disfrazada`, the one assessment `§0` forbids | `risk-section.tsx` *(deleted)* | **Omission** | **Applied** |
+| `R2-07` | The page never says documents-exist ≠ base-correct | `scope-section.tsx` | **Omission** | **Applied** |
+| `R2-08` | `Cuenta de cobro lista para pagar` without the `documento soporte` the buyer owes | `scope-section.tsx` | **Omission** | **Applied** |
+| `R2-09` | ARL clase IV–V is the client's own contribution; the page never mentions it | `scope-section.tsx` | **Omission** | **Applied** (stated, not performed) |
 | `R2-10` | `PILA, RUT y DIAN` lists an authority as a document, in four places | `hero.tsx:119`, `demo-pipeline.tsx:247`, `contact-intake.tsx:38`, `layout.tsx:37` | **Imprecise** | Medium |
-| `R2-11` | `Responsabilidades verificadas` never says against what | `hero.tsx:52`, `demo-pipeline.tsx:66` | **Imprecise** | Low |
-| `R2-12` | The audit log is never connected to the deduction it exists to support | `trust-section.tsx:64` | **Opportunity** | High |
+| `R2-11` | `Responsabilidades verificadas` never says against what | `demo-pipeline.tsx` | **Imprecise** | **Applied** (console only) |
+| `R2-12` | The audit log is never connected to the deduction it exists to support | `trust-section.tsx` | **Opportunity** | **Applied** |
 | `R2-13` | `Mes vencido` is obeyed in the labels and never explained to the reader | `demo-pipeline.tsx:247` | **Opportunity** | Medium |
 | `R2-14` | Chat copy is duplicated from `verbatim.es.md` by hand, with no link | `demo-pipeline.tsx:82-133` | **Opportunity** | Medium |
 | `R2-15` | The primary conversion opens an invalid WhatsApp link | `contact-intake.tsx:13` | — | **Applied** |
@@ -487,10 +490,59 @@ way the site is now audited.
 
 ---
 
+## Applied inside the console rewrite — 2026-08-18
+
+Joahn's direction after reviewing an alternative concept (`AVALA ENGINE`): keep
+its structure, not its skin. The demo became a self-running console, which meant
+rebuilding the cases from scratch — so the findings that live in those cases
+were fixed in the same pass rather than shipped again knowingly.
+
+- **`R2-01`** — all four cases are personas naturales now, NIT middle digits
+  masked, and each states its contributor type (`Q-CLS-05`). The masking also
+  closes "confirm the demo NITs are not real" permanently.
+- **`R2-02`** — the canonical case is the missing planilla (`V-PILA-01`), whose
+  ask and close are the same rule, instead of a RUT case that failed
+  `V-RUT-03` and closed on `V-RUT-01`.
+- **`R2-06`** — the risk section is gone. `manifesto-section.tsx` replaces it:
+  positioning by negation, plus the one consequence that is actually sourced —
+  the deduction turning on the client's own documented verification.
+- **`R2-11`** — the console check reads `Responsabilidades vs. servicio
+  facturado`, which is what `V-RUT-02` compares. The hero preview still carries
+  the short label.
+- **`R2-12`** — the trust block now says what the record is for.
+
+Also landed, outside the review: the hero stat row was removed (two of three
+figures were self-declared illustrative), the `APROBADO` stamp now lands once
+instead of twice, `PhoneFrame` was deleted as dead code, and `surface` was added
+to the token set for the product's own artifacts.
+
+**Then, the same day — `scope-section.tsx`.** A second reference (Cifrato)
+prompted the pattern that closed the rest: five items, one open, a panel that
+redraws for the open item. Its closing item is the `Alcance` block these
+findings were waiting for.
+
+- **`R2-07`** — "No recalcula el IBC — que es lo que la UGPP fiscaliza."
+- **`R2-08`** — "Si el proveedor no factura, lo genera tu empresa · Res. DIAN
+  000165/2023."
+- **`R2-09`** — "En contratos de más de un mes ese aporte lo paga tu empresa."
+  Stated as a boundary, not as a capability: the product still does not resolve
+  the risk class, so the copy tells the client whose contribution it is and
+  stops there.
+
+`manifesto-section.tsx` was folded in as that item's struck-through list and
+deleted — one section instead of two, and the list now ends on the boundary
+rather than on the pitch.
+
+**Still open here:** `R2-14` (wiring `verbatim.es.md` to the code instead of
+copying lines by hand), and the product gaps themselves — `claims-audit`
+findings 11–13 are stated on the page now, not closed.
+
+---
+
 ## Suggested order
 
 1. ~~`R2-15` (broken conversion), `R2-03`, `R2-04`~~ — **applied 2026-08-18**.
-2. `R2-01` + `R2-02` — one PR: the demo cases are rewritten once, coherently.
+2. ~~`R2-01` + `R2-02`~~ — **applied 2026-08-18** with the console rewrite.
 3. `R2-05` — agent layer, before any agent ships against it.
 4. `R2-07`, `R2-08`, `R2-12`, `R2-09` — one `Alcance` block plus the trust-section
    rewrite; the highest credibility gain per line on the page.

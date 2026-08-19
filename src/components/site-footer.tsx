@@ -24,7 +24,7 @@ export function SiteFooter() {
           </p>
         </div>
 
-        <p className="mt-8 max-w-2xl text-caption text-graphite">
+        <p className="mt-8 max-w-2xl text-caption text-evidence">
           AVALA no sustituye asesoría tributaria ni contable. Las validaciones
           se apoyan en la planilla del operador PILA autorizado y en la consulta
           del RUT en la DIAN. Los criterios de fiscalización los fija la UGPP.
