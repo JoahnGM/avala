@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FlowDiagram, type FlowVariant } from "@/components/ui/flow-diagram";
 import { SectionLabel } from "@/components/ui/section-label";
 
 // §03 "Alcance" — five items, one open, a panel that redraws for the open one.
@@ -18,6 +19,9 @@ import { SectionLabel } from "@/components/ui/section-label";
 //
 // Norm citations and rule IDs render in `evidence`, not `graphite` (P1-5).
 
+// What the panel says in words, under what it says in the drawing. The
+// diagram carries the movement; these carry the proof — rule IDs and norms —
+// which have to stay real text at AA, not 10px inside an SVG.
 type PanelLine = { label: string; value: string; evidence?: boolean };
 
 type Item = {
@@ -26,6 +30,8 @@ type Item = {
   title: string;
   body: string;
   panelTitle: string;
+  /** Which boxes-and-arrows drawing explains this step. */
+  flow: FlowVariant;
   lines: PanelLine[];
   /** Only the closing item carries these — what AVALA is not. */
   strikes?: string[];
@@ -38,8 +44,8 @@ const ITEMS: Item[] = [
     title: "Llega la cuenta de cobro",
     body: "La sube tu equipo o la manda el proveedor. No hay formulario que llenar ni portal nuevo que aprender.",
     panelTitle: "Entrada",
+    flow: "entrada",
     lines: [
-      { label: "Documento", value: "cuenta_0002.pdf · $2.100.000" },
       { label: "Proveedor", value: "Persona natural · prestación de servicios" },
     ],
   },
@@ -49,6 +55,7 @@ const ITEMS: Item[] = [
     title: "Se revisa contra la fuente",
     body: "No contra una copia que el proveedor mandó: contra la planilla del operador autorizado y el RUT en la DIAN.",
     panelTitle: "Fuentes",
+    flow: "fuentes",
     lines: [
       {
         label: "Operador PILA",
@@ -68,8 +75,8 @@ const ITEMS: Item[] = [
     title: "AVALA corrige con el proveedor",
     body: "Lo que falte se pide por WhatsApp y se persigue hasta que llegue. Tu equipo no escribe un solo mensaje.",
     panelTitle: "Corrección",
+    flow: "correccion",
     lines: [
-      { label: "Canal", value: "WhatsApp · AVALA ↔ proveedor" },
       {
         label: "Ejemplo",
         value: "«Me falta tu planilla del último período. ¿Me la envías?»",
@@ -82,8 +89,8 @@ const ITEMS: Item[] = [
     title: "Te queda el expediente",
     body: "El reporte y el registro de cada acción, con hora y actor. De eso depende que tu empresa pueda deducir el pago.",
     panelTitle: "Salida",
+    flow: "salida",
     lines: [
-      { label: "Reporte", value: "reporte_cuenta_0002.pdf · 3 anexos" },
       {
         label: "Registro",
         value: "Ley 1393/2010 arts. 26-27 · E.T. art. 108 par. 2",
@@ -97,6 +104,7 @@ const ITEMS: Item[] = [
     title: "Dónde entra tu contador",
     body: "AVALA arma el expediente y lo deja listo para quien decide. Estas tres cosas son de tu empresa, y conviene saberlo antes y no después.",
     panelTitle: "Handoff",
+    flow: "handoff",
     lines: [
       {
         label: "Base de aportes (IBC)",
@@ -204,7 +212,15 @@ export function ScopeSection() {
             <p className="font-mono text-caption uppercase tracking-widest text-graphite">
               {item.panelTitle}
             </p>
-            <dl className="mt-5 space-y-5">
+
+            {/* Boxes and arrows instead of a label/value list: a list says what
+                exists, a diagram says what moves where — which is the argument
+                each step is actually making. */}
+            <div className="mt-5">
+              <FlowDiagram variant={item.flow} />
+            </div>
+
+            <dl className="mt-5 space-y-4 border-t border-hairline pt-5">
               {item.lines.map((line) => (
                 <div key={line.label}>
                   <dt className="font-mono text-caption uppercase tracking-widest text-graphite">
