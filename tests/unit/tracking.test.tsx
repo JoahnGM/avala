@@ -1,8 +1,11 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ContactIntake } from "@/components/contact-intake";
+import { beforeEach, describe, expect, it } from "vitest";
 import { DemoPipeline } from "@/components/demo-pipeline";
+import { ClosingSection } from "@/components/closing-section";
+import { Hero } from "@/components/hero";
+import { ScopeSection } from "@/components/scope-section";
+import { SiteHeader } from "@/components/site-header";
 
 function events() {
   return (window.dataLayer ?? []).map((entry) => entry.event);
@@ -17,53 +20,48 @@ describe("conversion funnel tracking", () => {
     window.dataLayer = [];
   });
 
-  it("reports each intake step, then the completion and the hand-off", async () => {
+  // The intake funnel (`intake_start` → `intake_complete`) is gone with the
+  // form it measured. `whatsapp_click` replaces it as the key event, and
+  // `cta_location` is the number that was missing: it separates "nobody wants a
+  // demo" from "nobody reached the CTA".
+  it.each([
+    ["header", SiteHeader],
+    ["hero", Hero],
+    ["demo", DemoPipeline],
+    ["alcance", ScopeSection],
+    ["cierre", ClosingSection],
+  ])("reports the %s CTA under its own location", async (location, Section) => {
     const user = userEvent.setup();
-    vi.spyOn(window, "open").mockImplementation(() => null);
-    render(<ContactIntake />);
+    render(<Section />);
+    window.dataLayer = [];
 
-    const answers = ["revisar a mano es lento", "200", "finanzas", "3001234567"];
-    for (const answer of answers) {
-      await user.type(screen.getByLabelText(/tu respuesta/i), answer);
-      await user.click(screen.getByRole("button", { name: /siguiente|enviar/i }));
-    }
+    await user.click(
+      screen.getByRole("link", { name: /agenda una demo/i }),
+    );
 
-    expect(events()).toEqual([
-      "intake_start",
-      "intake_step",
-      "intake_step",
-      "intake_step",
-      "intake_step",
-      "intake_complete",
-      "intake_handoff",
+    expect(payloads("whatsapp_click")).toEqual([
+      { event: "whatsapp_click", cta_location: location, channel: "whatsapp" },
     ]);
-    expect(payloads("intake_step").map((e) => e.question_key)).toEqual([
-      "reto",
-      "volumen",
-      "quien",
-      "wa",
-    ]);
-    // The email fallback is a materially worse hand-off, so the channel has to
-    // be distinguishable in the report.
-    expect(payloads("intake_handoff")[0].channel).toBe("whatsapp");
   });
 
-  it("never puts what the visitor typed into the dataLayer", async () => {
+  // The old intake pushed four free-text answers' worth of risk at the
+  // dataLayer; the guard was a test asserting nothing typed ever leaked. The
+  // page now collects nothing, so the invariant becomes stricter: a CTA push
+  // carries the shape of the click and nothing else. Anyone adding a param that
+  // could carry content fails here.
+  it("puts only funnel shape in the dataLayer, never content", async () => {
     const user = userEvent.setup();
-    vi.spyOn(window, "open").mockImplementation(() => null);
-    render(<ContactIntake />);
+    render(<ClosingSection />);
+    window.dataLayer = [];
 
-    // A phone number or free text reaching GA4 would breach Google's no-PII
-    // policy and the Ley 1581 authorization stated in the intake itself.
-    const secrets = ["nos demoramos muchisimo", "200", "finanzas", "3001234567"];
-    for (const answer of secrets) {
-      await user.type(screen.getByLabelText(/tu respuesta/i), answer);
-      await user.click(screen.getByRole("button", { name: /siguiente|enviar/i }));
-    }
+    await user.click(screen.getByRole("link", { name: /agenda una demo/i }));
 
-    const serialised = JSON.stringify(window.dataLayer);
-    for (const secret of secrets) {
-      expect(serialised).not.toContain(secret);
+    for (const push of payloads("whatsapp_click")) {
+      expect(Object.keys(push).sort()).toEqual([
+        "channel",
+        "cta_location",
+        "event",
+      ]);
     }
   });
 
@@ -91,7 +89,9 @@ describe("conversion funnel tracking", () => {
     expect(events()).toContain("demo_replay");
 
     window.dataLayer = [];
-    const other = screen.getAllByRole("button").find((b) => /no responde|resuelve/i.test(b.textContent ?? ""));
+    const other = screen
+      .getAllByRole("button")
+      .find((b) => /no responde|resuelve/i.test(b.textContent ?? ""));
     if (other) {
       await user.click(other);
       expect(payloads("demo_case_select").length).toBeGreaterThanOrEqual(0);

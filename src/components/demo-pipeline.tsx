@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ChatBubble } from "@/components/ui/chat-bubble";
+import { WhatsAppCta } from "@/components/ui/whatsapp-cta";
 import { track } from "@/lib/analytics";
 import { SectionLabel } from "@/components/ui/section-label";
 import { Stamp } from "@/components/ui/stamp";
@@ -484,6 +485,20 @@ export function DemoPipeline({ speed = 1 }: DemoPipelineProps) {
         <p className="mt-3 font-mono text-caption text-graphite">
           Ejemplo con datos anonimizados.
         </p>
+
+        {/* The ask, at the point the console has just proved the mechanism.
+            Until 2026-08-21 this moment had nothing to press: the page's only
+            two CTAs were the sticky bar and §01, both scrolling to a form at
+            the bottom. GA4 over 22 visitors: 5 ran the console, 0 reached the
+            intake. */}
+        <div className="mt-10 border-t border-hairline pt-8">
+          <p className="max-w-2xl text-body-lg text-ink">
+            Esto mismo, con una cuenta de cobro tuya y tus proveedores.
+          </p>
+          <div className="mt-5">
+            <WhatsAppCta location="demo" label="Agenda una demo · 20 min" />
+          </div>
+        </div>
 
         {/* P1-2 — the single biggest adoption objection: AVALA writes to your
             supplier in the first person, and the page never said from what

@@ -71,3 +71,31 @@ make it mechanisable later: `agents/verbatim.es.md` §F is a literal
 do-not-say list that a lint rule could grep the `src/` tree for, and once
 copy moves out of inline JSX into data, claims can be required to carry an
 `N-xxx` field rather than relying on a reviewer to notice one is missing.
+
+---
+
+## 3. The ask sits where the proof lands
+
+**Rule:** Every section that makes an argument strong enough to decide on must
+carry the conversion next to it. The conversion itself asks for the channel
+first and the context later — never the reverse. A visitor who is convinced must
+never have to scroll to act.
+
+**Violation signal:** A section whose only path to converting is the sticky bar
+or "keep scrolling". A form that asks a question before it has given the visitor
+a way to reach a human. Any measured step whose completion count is zero while
+the step before it is not.
+
+**Origin:** Found 2026-08-21 in the first 22 sessions of live GA4 data
+(`design/analytics.md` → "What the first 22 sessions said"). The page had two
+CTAs, both scrolling to a four-question conversational intake 7,6 phone screens
+down. Five visitors watched the console prove the mechanism and then met nothing
+to press; three ever saw the form; none answered its first question, which asked
+what they wanted to solve before offering any way to reach AVALA. The intake was
+deleted rather than reworded — the shortest correct version of it was the
+WhatsApp link it was trying to earn.
+
+**How this gets checked:** `tests/unit/tracking.test.tsx` asserts that all five
+CTA instances exist and report their own `cta_location`, so a section cannot
+quietly lose its ask. Whether the ask *converts* is `cta_location` in GA4, which
+is the point of splitting them.
