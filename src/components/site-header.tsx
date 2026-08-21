@@ -1,6 +1,13 @@
-// The bar floats: the CTA is the only conversion above the fold and the page is
-// five sections long, so it has to survive the scroll. `paper` stays opaque —
-// a translucent bar over the inverted §04 would put graphite text on ink.
+import { WhatsAppCta } from "@/components/ui/whatsapp-cta";
+
+// The bar floats: the page is five sections long, so the ask has to survive the
+// scroll. `paper` stays opaque — a translucent bar over the inverted §04 would
+// put graphite text on ink.
+//
+// The CTA used to scroll to a form at the bottom of the page. It now opens
+// WhatsApp directly (src/lib/handoff.ts): from the sticky bar the conversion is
+// one tap from any scroll position, instead of a 7.6-screen trip to a form
+// nobody filled in.
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-hairline bg-paper">
@@ -15,12 +22,7 @@ export function SiteHeader() {
           </span>
         </div>
         <nav aria-label="Acciones principales">
-          <a
-            href="#contacto"
-            className="border border-stamp px-4 py-2 font-mono text-caption uppercase tracking-widest text-stamp hover:bg-stamp hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-          >
-            Agenda una demo
-          </a>
+          <WhatsAppCta location="header" variant="outline" note={false} />
         </nav>
       </div>
     </header>

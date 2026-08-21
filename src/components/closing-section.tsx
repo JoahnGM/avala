@@ -1,22 +1,27 @@
-import { ContactIntake } from "@/components/contact-intake";
 import { SectionLabel } from "@/components/ui/section-label";
+import { WhatsAppCta } from "@/components/ui/whatsapp-cta";
+import { AVALA_EMAIL, handoffChannel } from "@/lib/handoff";
 
-// §05 "Cierre" — the closing conversion. The page CTAs point to #contacto, so
-// this <section> owns that id; the conversion itself is the conversational
-// ContactIntake.
+// §05 "Cierre" — the closing conversion.
 //
-// P1-3 — "qué pasa después" sits beside the form. The nav asks for a demo and
-// the form asked for a pain, with no statement of what pressing send does; a
-// visitor who cannot predict the consequence does not press. Written without a
-// response-time promise: an SLA nobody has agreed to is a fabricated number.
+// The conversation used to happen here, before the demo: a four-question
+// conversational intake that asked for a pain, a volume and a name before it
+// asked for a number. GA4 over 22 visitors: 3 sessions ever saw this section
+// and 0 submitted a first answer. Removed 2026-08-21 — the conversation now
+// happens where it actually belongs, on WhatsApp, with AVALA answering. The
+// page's job is to open it, not to rehearse it.
+//
+// The `#contacto` id stays: it is an analytics contract, not just an anchor
+// (design/analytics.md). Nothing links to it now — every CTA leaves for
+// WhatsApp — but renaming it would break the section funnel.
 //
 // Copy is user-facing (Spanish, "tú" voice); flag any change in the PR.
 
 const NEXT_STEPS = [
   {
     step: "01",
-    title: "Te escribimos por WhatsApp",
-    body: "Al número que dejes, para cuadrar la hora. Sin llamada en frío.",
+    title: "Nos escribes por WhatsApp",
+    body: "El mensaje va escrito: solo lo envías. Sin formularios y sin llamada en frío.",
   },
   {
     step: "02",
@@ -44,7 +49,50 @@ export function ClosingSection() {
         </h2>
 
         <div className="mt-12 grid gap-12 md:grid-cols-[1fr_0.8fr] md:gap-16">
-          <ContactIntake />
+          <div>
+            <p className="max-w-xl text-body-lg text-ink">
+              Escríbenos y coordinamos la demo por ahí mismo. Es el canal por el
+              que AVALA trabaja con tus proveedores, así que ya lo estás viendo
+              funcionar.
+            </p>
+
+            <div className="mt-8">
+              <WhatsAppCta location="cierre" label="Agenda una demo · 20 min" />
+            </div>
+
+            {/* The number is a placeholder-guarded constant: if it is ever
+                blanked the CTA degrades to email, and this line has to say
+                which one the visitor is about to open. */}
+            <p className="mt-8 font-mono text-caption text-graphite">
+              {handoffChannel === "whatsapp"
+                ? "¿No se abre WhatsApp? Escríbenos a "
+                : "¿No se abre tu correo? Escríbenos a "}
+              <a
+                href={`mailto:${AVALA_EMAIL}`}
+                className="underline underline-offset-4 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+              >
+                {AVALA_EMAIL}
+              </a>
+            </p>
+
+            {/* claims-audit.md finding 16 — Ley 1581 de 2012 (agents/legal-brain.md
+                N-019) requires authorization and a stated purpose. The landing no
+                longer collects anything: the visitor hands over a number by
+                writing to us. The notice stays, scoped to that act, because the
+                purpose limitation and the deletion channel are still owed. */}
+            <p className="mt-3 text-caption text-evidence">
+              Al escribirnos autorizas a AVALA a contactarte por WhatsApp o
+              correo para agendar la demo. Usamos tus datos solo para eso y los
+              eliminamos cuando nos lo pidas en{" "}
+              <a
+                href={`mailto:${AVALA_EMAIL}`}
+                className="underline underline-offset-4 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+              >
+                {AVALA_EMAIL}
+              </a>{" "}
+              (Ley 1581 de 2012).
+            </p>
+          </div>
 
           <div>
             <p className="font-mono text-caption uppercase tracking-widest text-graphite">

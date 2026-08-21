@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FlowDiagram, type FlowVariant } from "@/components/ui/flow-diagram";
 import { SectionLabel } from "@/components/ui/section-label";
+import { WhatsAppCta } from "@/components/ui/whatsapp-cta";
 
 // §03 "Alcance" — five items, one open, a panel that redraws for the open one.
 //
@@ -249,6 +250,19 @@ export function ScopeSection() {
                 ))}
               </ul>
             ) : null}
+          </div>
+        </div>
+
+        {/* §03 is where the reader decides whether the scope fits their
+            operation. That decision needs an ask next to it, not eleven
+            screens further down. */}
+        <div className="mt-12 border-t border-hairline pt-8">
+          <p className="max-w-2xl text-body-lg text-ink">
+            Ese es el alcance. Si encaja con tu operación, lo vemos con tus
+            documentos.
+          </p>
+          <div className="mt-5">
+            <WhatsAppCta location="alcance" />
           </div>
         </div>
       </div>

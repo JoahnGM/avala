@@ -1,4 +1,5 @@
 import { SectionLabel } from "@/components/ui/section-label";
+import { WhatsAppCta } from "@/components/ui/whatsapp-cta";
 
 // §01 hero.
 //
@@ -20,13 +21,13 @@ import { SectionLabel } from "@/components/ui/section-label";
 export function Hero() {
   return (
     <section id="problema">
-      <div className="mx-auto max-w-5xl px-6 pt-8 pb-16 md:pt-12 md:pb-20">
+      <div className="mx-auto max-w-5xl px-6 pt-8 pb-12 md:pt-12 md:pb-16">
         <div className="flex items-center gap-4">
           <SectionLabel as="p">01 · El problema</SectionLabel>
           <span className="h-px flex-1 bg-hairline" aria-hidden="true" />
         </div>
 
-        <h1 className="mt-12 max-w-4xl font-display uppercase">
+        <h1 className="mt-8 max-w-4xl font-display uppercase">
           <span className="block text-display-md md:text-display-lg">
             Deja de revisar cuentas de cobro a mano
           </span>
@@ -35,19 +36,14 @@ export function Hero() {
           </span>
         </h1>
 
-        <p className="mt-8 max-w-2xl text-body-xl text-graphite">
+        <p className="mt-6 max-w-2xl text-body-xl text-graphite">
           AVALA revisa la planilla y el RUT de cada proveedor, le pide por
           WhatsApp lo que falte y te entrega la cuenta de cobro con el expediente
           armado — que es de lo que depende que puedas deducir el pago.
         </p>
 
-        <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4">
-          <a
-            href="#contacto"
-            className="bg-stamp px-6 py-3 font-mono text-data uppercase tracking-widest text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-          >
-            Agenda una demo · 20 min
-          </a>
+        <div className="mt-8 flex flex-wrap items-start gap-x-6 gap-y-4">
+          <WhatsAppCta location="hero" label="Agenda una demo · 20 min" />
           <span className="font-mono text-caption uppercase tracking-widest text-graphite">
             Sin instalar nada · Piloto sin costo
           </span>
@@ -55,7 +51,7 @@ export function Hero() {
 
         {/* P2-3 — without naming the incumbent, AVALA has no budget line to sit
             in. This is the alternative every prospect already pays for. */}
-        <p className="mt-8 max-w-2xl text-body text-graphite">
+        <p className="mt-6 max-w-2xl text-body text-graphite">
           Hoy ese trabajo lo hace un auxiliar contable revisando PDFs, o tu
           contador externo cuando le alcanza el mes.
         </p>

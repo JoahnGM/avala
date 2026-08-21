@@ -54,7 +54,7 @@ mechanism is possible as described.
 | 13 | No `documento soporte` | product-wide | **Gap** | **Open — product** |
 | 14 | "Sin que muevas un dedo" vs "Nada sale sin tu aprobación" | `demo-pipeline.tsx:92,246` / `trust-section.tsx:85` | **Contradiction** | **Applied** |
 | 15 | "de cada proveedor", "cada cuenta de cobro", "Cada validación" | `hero.tsx:90-91`, `trust-section.tsx:45` | **Unsupported** | **Applied** |
-| 16 | No `tratamiento de datos` notice | `contact-intake.tsx` | **Gap** | **Applied** |
+| 16 | No `tratamiento de datos` notice | `closing-section.tsx` | **Gap** | **Applied** |
 | 17 | Unmarked fictional suppliers with `APROBADO` stamp | `hero.tsx:36-42`, `demo-pipeline.tsx` | **Imprecise** | **Applied** (NITs still to verify) |
 
 Line references are as audited at commit `a3476a7`. The applied corrections have
@@ -593,9 +593,23 @@ hola@avala.co (Ley 1581 de 2012)." It carries authorization, purpose limitation,
 and a deletion channel. No policy link, because no policy page exists — a link
 to a missing page would be worse than none.
 
-**Still needs you:** a `política de tratamiento de datos` page to link, AVALA's
-NIT in the footer, and the real WhatsApp number (`AVALA_WHATSAPP` is still
-`57XXXXXXXXXX`).
+**Still needs you:** a `política de tratamiento de datos` page to link, and
+AVALA's NIT in the footer.
+
+**Revisited 2026-08-21.** The intake form is gone (GA4: 3 of 20 sessions reached
+it, 0 answered a question). The landing now collects nothing at all — every CTA
+opens WhatsApp with the message prewritten, so the visitor hands over a number by
+writing to us, on a channel they chose. That removes the collection, not the
+duty: the notice moved to `closing-section.tsx`, next to the ask, rescoped to the
+act that actually happens ("Al escribirnos autorizas…") and still carrying
+purpose limitation, the deletion channel and `N-019`.
+
+The placeholder number flagged above is also closed: `AVALA_WHATSAPP` is
+`573012441488` in `src/lib/handoff.ts`, and `tests/unit/handoff.test.ts` now
+asserts the shape of the number and the destination of the URL instead of merely
+that it contains `wa.me` — the weak assertion that would have let the dead link
+ship. It matters more than it did: the number is no longer the last step of the
+conversion, it *is* the conversion.
 
 ---
 
